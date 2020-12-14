@@ -101,7 +101,7 @@ void Glim::FloatingButton::OnResize()
 	for (int i = 0; i < buttonInfo.size(); i++)
 	{
 		ComputeQuadPos(i);
-		quads.UpdateQuadPos(
+		quads.UpdateQuadVertexCoords(
 			buttonInfo[i].geometryIndex,
 			buttonInfo[i].pos,
 			{ buttonInfo[i].size, buttonInfo[i].size }

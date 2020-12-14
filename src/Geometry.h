@@ -34,7 +34,7 @@ namespace Glim {
 			const glm::vec4& color,
 			const glm::vec4& data = { 0.0f, 0.0f, 0.0f, 0.0f },
 			const glm::vec4& moreData = { 0.0f, 0.0f, 0.0f, 0.0f });
-		void UpdateQuadPos(
+		void UpdateQuadVertexCoords(
 			unsigned int index,
 			const glm::vec2& pos,
 			const glm::vec2& size);

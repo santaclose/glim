@@ -78,7 +78,7 @@ void Glim::Slider::Evaluate(const glm::vec2& position, float sizeInPixels, float
 
 	sliders[currentSliderID].pos = position - glm::vec2(0.0, QUAD_HEIGHT / 2.0);
 	sliders[currentSliderID].size = sizeInPixels;
-	quads.UpdateQuadPos(sliders[currentSliderID].geometryIndex, sliders[currentSliderID].pos, { sizeInPixels, QUAD_HEIGHT });
+	quads.UpdateQuadVertexCoords(sliders[currentSliderID].geometryIndex, sliders[currentSliderID].pos, { sizeInPixels, QUAD_HEIGHT });
 
 	float minPos = sliders[currentSliderID].pos.x + HANDLE_RADIUS;
 	float maxPos = sliders[currentSliderID].pos.x + sliders[currentSliderID].size - HANDLE_RADIUS;

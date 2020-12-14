@@ -100,14 +100,14 @@ unsigned int Glim::CircleFont::Add(unsigned int glyphID, const glm::vec2& positi
 void Glim::CircleFont::UpdatePosition(unsigned int glyphInstanceID, const glm::vec2& position)
 {
 	float quadSize = abs(m_quads.GetVertexPos(glyphInstanceID * 4).x - m_quads.GetVertexPos(glyphInstanceID * 4 + 1).x);
-	m_quads.UpdateQuadPos(glyphInstanceID * 4, position, { quadSize, quadSize });
+	m_quads.UpdateQuadVertexCoords(glyphInstanceID * 4, position, { quadSize, quadSize });
 	m_quads.UpdateQuadData(glyphInstanceID * 4, { position.x, position.y, quadSize, 0.0 }, { 0.0, 0.0, 0.0, 0.0 }, 0b11100000);
 }
 
 void Glim::CircleFont::UpdateSize(unsigned int glyphInstanceID, float newSize)
 {
 	glm::vec2 quadPos = m_quads.GetVertexPos(glyphInstanceID * 4);
-	m_quads.UpdateQuadPos(glyphInstanceID * 4, quadPos, { newSize, newSize });
+	m_quads.UpdateQuadVertexCoords(glyphInstanceID * 4, quadPos, { newSize, newSize });
 	m_quads.UpdateQuadData(glyphInstanceID * 4, { quadPos.x, quadPos.y, newSize, 0.0 }, { 0.0, 0.0, 0.0, 0.0 }, 0b11100000);
 }
 

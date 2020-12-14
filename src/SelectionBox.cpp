@@ -77,7 +77,7 @@ void Glim::SelectionBox::OnResize()
 			pos.x -= boxSize.x;
 		if (selectionBoxes[i].cornerAtPos == Corner::BottomLeft || selectionBoxes[i].cornerAtPos == Corner::BottomRight)
 			pos.y -= boxSize.y;
-		quads.UpdateQuadPos(selectionBoxes[i].geometryIndex, pos, boxSize);
+		quads.UpdateQuadVertexCoords(selectionBoxes[i].geometryIndex, pos, boxSize);
 		quads.UpdateQuadData(selectionBoxes[i].geometryIndex,
 			{
 				pos.x, pos.y,
@@ -106,7 +106,7 @@ int Glim::SelectionBox::Create(const std::vector<std::string>* options, const gl
 	}
 	else
 	{
-		quads.UpdateQuadPos(selectionBoxes[currentOnScreenBoxCount].geometryIndex, pos, boxSize);
+		quads.UpdateQuadVertexCoords(selectionBoxes[currentOnScreenBoxCount].geometryIndex, pos, boxSize);
 		quads.UpdateQuadColor(selectionBoxes[currentOnScreenBoxCount].geometryIndex, COLOR);
 		quads.UpdateQuadData(selectionBoxes[currentOnScreenBoxCount].geometryIndex,
 			{

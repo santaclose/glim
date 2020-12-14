@@ -60,7 +60,7 @@ namespace Glim {
 		return m_vertexVector.size() - 4;
 	}
 
-	void Geometry::UpdateQuadPos(unsigned int index, const glm::vec2& pos, const glm::vec2& size)
+	void Geometry::UpdateQuadVertexCoords(unsigned int index, const glm::vec2& pos, const glm::vec2& size)
 	{
 		m_vertexVector[index + 0].pos = { pos.x, pos.y };
 		m_vertexVector[index + 1].pos = { pos.x + size.x, pos.y };
