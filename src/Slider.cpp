@@ -4,6 +4,8 @@
 #include "Input.h"
 #include <iostream>
 
+// side margin fixes an issue when the handle is at one extreme
+#define SIDE_MARGIN 1.0f
 #define RAIL_THICKNESS 3.0f
 #define HANDLE_RADIUS 8.0f
 #define QUAD_HEIGHT 25.0f
@@ -37,8 +39,8 @@ bool Glim::Slider::CollisionTest(int sliderID)
 {
 	glm::vec2 circleCenter;
 	circleCenter.x = glm::mix(
-		sliders[sliderID].pos.x + HANDLE_RADIUS,
-		sliders[sliderID].pos.x + sliders[sliderID].size - HANDLE_RADIUS,
+		sliders[sliderID].pos.x + HANDLE_RADIUS + SIDE_MARGIN,
+		sliders[sliderID].pos.x + sliders[sliderID].size - HANDLE_RADIUS - SIDE_MARGIN,
 		*sliders[sliderID].value
 		);
 	circleCenter.y = sliders[sliderID].pos.y + QUAD_HEIGHT / 2.0f;
@@ -53,6 +55,7 @@ void Glim::Slider::Init(const uint32_t* windowSize)
 	shader.Bind();
 	shader.SetUniform1f("u_HandleRadius", HANDLE_RADIUS);
 	shader.SetUniform1f("u_RailThickness", RAIL_THICKNESS);
+	shader.SetUniform1f("u_SideMargin", SIDE_MARGIN);
 
 	quads.CreateFromShader(&shader);
 }
