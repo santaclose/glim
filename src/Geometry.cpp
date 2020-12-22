@@ -38,6 +38,25 @@ namespace Glim {
 		instances.push_back(this);
 	}
 
+	unsigned int Geometry::CreateQuad()
+	{
+		m_vertexVector.resize(m_vertexVector.size() + 4);
+
+		m_indexVector.push_back(m_vertexVector.size() - 4);
+		m_indexVector.push_back(m_vertexVector.size() - 3);
+		m_indexVector.push_back(m_vertexVector.size() - 2);
+		m_indexVector.push_back(m_vertexVector.size() - 2);
+		m_indexVector.push_back(m_vertexVector.size() - 1);
+		m_indexVector.push_back(m_vertexVector.size() - 4);
+
+		glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
+		glBufferData(GL_ARRAY_BUFFER, m_vertexVector.size() * sizeof(Vertex), &m_vertexVector[0], GL_DYNAMIC_DRAW);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IBO);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_indexVector.size() * sizeof(unsigned int), &m_indexVector[0], GL_DYNAMIC_DRAW);
+
+		return m_vertexVector.size() - 4;
+	}
+
 	unsigned int Geometry::CreateQuad(const glm::vec2& pos, const glm::vec2& size, const glm::vec4& color, const glm::vec4& data, const glm::vec4& moreData)
 	{
 		m_vertexVector.push_back({ {pos.x, pos.y}, color, data, moreData });

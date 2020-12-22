@@ -28,6 +28,7 @@ namespace Glim {
 
 	public:
 		void CreateFromShader(const Shader* shader);
+		unsigned int CreateQuad();
 		unsigned int CreateQuad(
 			const glm::vec2& pos,
 			const glm::vec2& size,

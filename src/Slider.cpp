@@ -60,28 +60,20 @@ void Glim::Slider::Init(const uint32_t* windowSize)
 	quads.CreateFromShader(&shader);
 }
 
-void Glim::Slider::OnResize()
-{
-
-}
-
-void Glim::Slider::Evaluate(const glm::vec2& position, float sizeInPixels, float* value)
+void Glim::Slider::Evaluate(const glm::vec2& position, float size, float* value)
 {
 	if (currentSliderID == sliders.size())
 	{
 		sliders.emplace_back();
-		sliders.back().value = value;
-		sliders.back().geometryIndex =
-			quads.CreateQuad(
-				{ 0.0f, 0.0f },
-				{ 0.0f, 0.0f },
-				COLOR
-				);
+		sliders.back().geometryIndex = quads.CreateQuad();
 	}
 
-	sliders[currentSliderID].pos = position - glm::vec2(0.0, QUAD_HEIGHT / 2.0);
-	sliders[currentSliderID].size = sizeInPixels;
-	quads.UpdateQuadVertexCoords(sliders[currentSliderID].geometryIndex, sliders[currentSliderID].pos, { sizeInPixels, QUAD_HEIGHT });
+	sliders[currentSliderID].pos = position;
+	sliders[currentSliderID].value = value;
+	sliders[currentSliderID].size = size;
+
+	quads.UpdateQuadVertexCoords(sliders[currentSliderID].geometryIndex, sliders[currentSliderID].pos, { size, QUAD_HEIGHT });
+	quads.UpdateQuadColor(sliders[currentSliderID].geometryIndex, COLOR);
 
 	float minPos = sliders[currentSliderID].pos.x + HANDLE_RADIUS;
 	float maxPos = sliders[currentSliderID].pos.x + sliders[currentSliderID].size - HANDLE_RADIUS;
@@ -104,13 +96,21 @@ void Glim::Slider::Evaluate(const glm::vec2& position, float sizeInPixels, float
 	}
 
 	quads.UpdateQuadData(sliders[currentSliderID].geometryIndex,
-		{ sliders[currentSliderID].pos.x, sliders[currentSliderID].pos.y + QUAD_HEIGHT,
-		  sliders[currentSliderID].pos.x + sizeInPixels, sliders[currentSliderID].pos.y },
-		{ *sliders[currentSliderID].value, 0.0f, 0.0f, 0.0f }
-		);
+		{ sliders[currentSliderID].pos.x, sliders[currentSliderID].pos.y,
+		  sliders[currentSliderID].pos.x + size, sliders[currentSliderID].pos.y + QUAD_HEIGHT },
+		{ *sliders[currentSliderID].value, 0.0f, 0.0f, 0.0f });
 
 	currentSliderID++;
 	return;
+}
+
+void Glim::Slider::BeforeDraw()
+{
+	while (currentSliderID < sliders.size())
+	{
+		quads.UpdateQuadColor(sliders[currentSliderID].geometryIndex, { 0.0f, 0.0f, 0.0f, 0.0f });
+		currentSliderID++;
+	}
 }
 
 void Glim::Slider::FrameEnd()

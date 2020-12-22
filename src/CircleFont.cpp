@@ -116,6 +116,11 @@ void Glim::CircleFont::ChangeGlyph(unsigned int glyphInstanceID, unsigned int ne
 	m_quads.UpdateQuadData(glyphInstanceID * 4, { 0.0, 0.0, 0.0, (float)newGlyphID }, { 0.0, 0.0, 0.0, 0.0 }, 0b00010000);
 }
 
+void Glim::CircleFont::SetGlyphColor(unsigned int glyphInstanceID, const glm::vec4& color)
+{
+	m_quads.UpdateQuadColor(glyphInstanceID * 4, color);
+}
+
 unsigned int Glim::CircleFont::GetGlyphCount()
 {
 	return m_glyphCount;

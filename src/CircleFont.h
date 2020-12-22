@@ -28,6 +28,7 @@ namespace Glim {
 		void UpdatePosition(unsigned int glyphInstanceID, const glm::vec2& position);
 		void UpdateSize(unsigned int glyphInstanceID, float newSize);
 		void ChangeGlyph(unsigned int glyphInstanceID, unsigned int newGlyphID);
+		void SetGlyphColor(unsigned int glyphInstanceID, const glm::vec4& color);
 		unsigned int GetGlyphCount();
 	};
 }

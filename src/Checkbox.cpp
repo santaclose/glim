@@ -57,18 +57,15 @@ void Glim::Checkbox::Evaluate(const glm::vec2& position, bool* value)
 	if (currentCheckboxID == checkboxes.size())
 	{
 		checkboxes.emplace_back();
-		checkboxes.back().value = value;
-		checkboxes.back().geometryIndex =
-			quads.CreateQuad(
-				{ 0.0f, 0.0f },
-				{ 0.0f, 0.0f },
-				COLOR
-			);
+		checkboxes.back().geometryIndex = quads.CreateQuad();
 	}
 
-	checkboxes[currentCheckboxID].pos = position - glm::vec2(0.0, QUAD_SIZE / 2.0);
+	checkboxes[currentCheckboxID].pos = position;
 	checkboxes[currentCheckboxID].size = QUAD_SIZE;
+	checkboxes[currentCheckboxID].value = value;
+
 	quads.UpdateQuadVertexCoords(checkboxes[currentCheckboxID].geometryIndex, checkboxes[currentCheckboxID].pos, { QUAD_SIZE, QUAD_SIZE });
+	quads.UpdateQuadColor(checkboxes[currentCheckboxID].geometryIndex, COLOR);
 
 	if (CollisionTest(currentCheckboxID) && Input::MouseButtonDown(0))
 		*checkboxes[currentCheckboxID].value = !*checkboxes[currentCheckboxID].value;
@@ -76,11 +73,19 @@ void Glim::Checkbox::Evaluate(const glm::vec2& position, bool* value)
 	quads.UpdateQuadData(checkboxes[currentCheckboxID].geometryIndex,
 		{ checkboxes[currentCheckboxID].pos.x, checkboxes[currentCheckboxID].pos.y,
 		  checkboxes[currentCheckboxID].pos.x + QUAD_SIZE, checkboxes[currentCheckboxID].pos.y + QUAD_SIZE },
-		{ *checkboxes[currentCheckboxID].value ? 1.0f : 0.0f, 0.0f, 0.0f, 0.0f }
-	);
+		{ *checkboxes[currentCheckboxID].value ? 1.0f : 0.0f, 0.0f, 0.0f, 0.0f });
 
 	currentCheckboxID++;
 	return;
+}
+
+void Glim::Checkbox::BeforeDraw()
+{
+	while (currentCheckboxID < checkboxes.size())
+	{
+		quads.UpdateQuadColor(checkboxes[currentCheckboxID].geometryIndex, { 0.0f, 0.0f, 0.0f, 0.0f });
+		currentCheckboxID++;
+	}
 }
 
 void Glim::Checkbox::FrameEnd()

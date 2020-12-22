@@ -21,22 +21,22 @@ float positiveCircle(vec2 center, float radius)
 void main()
 {
     fadeRange = 1.5;
-    vec2 bottomLeftQuadPos = b_Data.rg;
-    vec2 topRightQuadPos = b_Data.ba;
+    vec2 topLeftQuadPos = b_Data.rg;
+    vec2 bottomRightQuadPos = b_Data.ba;
 
     o_Color.rgba = b_Color.rgba;
 
-    float middleRailPosY = (bottomLeftQuadPos.y + topRightQuadPos.y) / 2.0;
+    float middleRailPosY = (topLeftQuadPos.y + bottomRightQuadPos.y) / 2.0;
 
     float railRectangle = float(
-        b_Pos.x > bottomLeftQuadPos.x + u_HandleRadius + u_SideMargin &&
-        b_Pos.x < topRightQuadPos.x - u_HandleRadius - u_SideMargin &&
+        b_Pos.x > topLeftQuadPos.x + u_HandleRadius + u_SideMargin &&
+        b_Pos.x < bottomRightQuadPos.x - u_HandleRadius - u_SideMargin &&
         b_Pos.y > middleRailPosY - u_RailThickness / 2.0 &&
         b_Pos.y < middleRailPosY + u_RailThickness / 2.0
         );
 
     float handleCircle = positiveCircle(
-        vec2(mix(bottomLeftQuadPos.x + u_HandleRadius + u_SideMargin, topRightQuadPos.x - u_HandleRadius - u_SideMargin, b_MoreData.x), middleRailPosY),
+        vec2(mix(topLeftQuadPos.x + u_HandleRadius + u_SideMargin, bottomRightQuadPos.x - u_HandleRadius - u_SideMargin, b_MoreData.x), middleRailPosY),
         u_HandleRadius
         );
 
