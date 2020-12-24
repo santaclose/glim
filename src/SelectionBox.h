@@ -3,7 +3,7 @@
 #include <vector>
 #include <string>
 #include <glm/glm.hpp>
-#include "CornerEnum.h"
+#include "Enums.h"
 
 namespace Glim::SelectionBox {
 

@@ -4,8 +4,6 @@
 
 namespace Glim::Text {
 
-	enum class Alignment { Left = 0, Center = 1, Right = 2 };
-
 	void Init(const std::string& fontFilePath, const uint32_t* windowSize);
 	void OnResize();
 	void Element(
