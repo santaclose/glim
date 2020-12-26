@@ -8,6 +8,7 @@
 #define CORNER_RADIUS 5.0f
 #define OPTION_HEIGHT 32.0f
 #define BOX_WIDTH 130.0f
+#define TEXT_SIZE 12
 #define TEXT_Y_OFFSET 9.0f
 #define COLOR { 0.3f, 0.3f, 0.3f, 0.8f }
 
@@ -21,6 +22,7 @@ namespace Glim::SelectionBox {
 		Corner cornerAtPos;
 	};
 
+	unsigned int fontID;
 	bool evaluationHandled = false;
 	int currentOnScreenBoxCount = 0;
 	glm::vec2 lastSelectionPos = {-1, -1};
@@ -65,6 +67,8 @@ void Glim::SelectionBox::Init(const uint32_t* windowSize)
 	shader.SetUniform1f("u_OptionHeight", OPTION_HEIGHT);
 	shader.SetUniform4fv("u_SelectionData", &shaderUniformData.x);
 	quads.CreateFromShader(&shader);
+
+	fontID = Glim::Text::CreateFontFromFile("assets/fonts/Open_Sans/OpenSans-Regular.ttf");
 }
 
 void Glim::SelectionBox::OnResize()
@@ -73,9 +77,11 @@ void Glim::SelectionBox::OnResize()
 	{
 		glm::vec2 pos = selectionBoxes[i].pos;
 		glm::vec2 boxSize = { BOX_WIDTH, OPTION_HEIGHT * selectionBoxes[i].options->size() + CORNER_RADIUS * 2.0f };
-		if (selectionBoxes[i].cornerAtPos == Corner::BottomRight || selectionBoxes[i].cornerAtPos == Corner::TopRight)
+		if (selectionBoxes[i].cornerAtPos == Corner::BottomRight ||
+			selectionBoxes[i].cornerAtPos == Corner::TopRight)
 			pos.x -= boxSize.x;
-		if (selectionBoxes[i].cornerAtPos == Corner::BottomLeft || selectionBoxes[i].cornerAtPos == Corner::BottomRight)
+		if (selectionBoxes[i].cornerAtPos == Corner::BottomLeft ||
+			selectionBoxes[i].cornerAtPos == Corner::BottomRight)
 			pos.y -= boxSize.y;
 		quads.UpdateQuadVertexCoords(selectionBoxes[i].geometryIndex, pos, boxSize);
 		quads.UpdateQuadData(selectionBoxes[i].geometryIndex,
@@ -90,9 +96,11 @@ int Glim::SelectionBox::Create(const std::vector<std::string>* options, const gl
 {
 	glm::vec2 pos = position;
 	glm::vec2 boxSize = { BOX_WIDTH, OPTION_HEIGHT * options->size() + CORNER_RADIUS * 2.0f };
-	if (cornerAtPos == Corner::BottomRight || cornerAtPos == Corner::TopRight)
+	if (cornerAtPos == Corner::BottomRight ||
+		cornerAtPos == Corner::TopRight)
 		pos.x -= boxSize.x;
-	if (cornerAtPos == Corner::BottomLeft || cornerAtPos == Corner::BottomRight)
+	if (cornerAtPos == Corner::BottomLeft ||
+		cornerAtPos == Corner::BottomRight)
 		pos.y -= boxSize.y;
 
 	if (currentOnScreenBoxCount == selectionBoxes.size()) // need to create a quad
@@ -138,7 +146,7 @@ int Glim::SelectionBox::Evaluate(int selectionBoxID)
 		Text::Element(
 			(*(selectionBoxes[selectionBoxID].options))[i],
 			{ pos.x + BOX_WIDTH / 2.0f, pos.y + CORNER_RADIUS + OPTION_HEIGHT * (i + 1) - TEXT_Y_OFFSET },
-			15.0f, 0xffffffff, Glim::Text::Alignment::Center);
+			TEXT_SIZE, fontID, 0xffffffff, Glim::Alignment::Center);
 	}
 
 	if (evaluationHandled)
