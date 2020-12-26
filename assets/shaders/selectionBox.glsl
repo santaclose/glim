@@ -29,7 +29,7 @@ float positiveCircle(vec2 center, float radius)
 
 void main()
 {
-    fadeRange = 1.5;
+    fadeRange = 1.2;
 
     o_Color.rgba = b_Color.rgba;
     

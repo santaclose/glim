@@ -34,7 +34,7 @@ void main()
 	int floatsPerGlyph = (u_GroupCount * u_CirclesPerGroup) * 4;
 	int glyphID = int(b_Data[3]);
 
-	fadeRange = 1.5;
+	fadeRange = 1.2;
 
 	o_Color = b_Color;
 	float finalMultiplier = 0.0;

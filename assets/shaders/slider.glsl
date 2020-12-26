@@ -20,7 +20,7 @@ float positiveCircle(vec2 center, float radius)
 
 void main()
 {
-    fadeRange = 1.5;
+    fadeRange = 1.2;
     vec2 topLeftQuadPos = b_Data.rg;
     vec2 bottomRightQuadPos = b_Data.ba;
 
