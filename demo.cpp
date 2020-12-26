@@ -10,6 +10,7 @@
 #include "FloatingButton.h"
 #include "SelectionBox.h"
 #include "Slider.h"
+#include "Checkbox.h"
 #include "CircleFont.h"
 
 #define APPLICATION_WIDTH 1280
@@ -26,11 +27,7 @@ const std::vector<std::vector<std::string>> itemOptions = {
 const std::vector<std::string> fileSelectionBoxOptions =
 { "Open", "Save", "Import", "Export", "Exit", "Preferences" };
 
-float sliderAValue = 0.5;
-float sliderBValue = 0.75;
-
-Glim::CircleFont testCircleFont;
-unsigned int theGlyph;
+float sliderValue = 0.5;
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
@@ -40,10 +37,7 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 
 	Glim::Shader::UpdateMatrix(windowSize);
 	Glim::Text::OnResize();
-	Glim::FloatingButton::OnResize();
 	Glim::SelectionBox::OnResize();
-
-	testCircleFont.UpdatePosition(theGlyph, { width / 2.0f, height / 2.0f });
 }
 
 void cursor_position_callback(GLFWwindow* window, double xpos, double ypos)
@@ -107,13 +101,12 @@ int main()
 	// Glim::Init();
 
 	Glim::Geometry::Init(windowSize);
-	Glim::Text::Init("assets/fonts/Lato/Lato-Black.ttf", windowSize);
+	Glim::Text::Init(windowSize);
+	Glim::Text::CreateFontFromFile("assets/fonts/FiraCode/FiraCode-Regular.ttf");
 	Glim::SelectionBox::Init(windowSize);
-	Glim::FloatingButton::Init(windowSize, 18.0f, Glim::FloatingButton::IconSource::CircleFont, "assets/icons.cf");
+	Glim::FloatingButton::Init(windowSize, Glim::FloatingButton::IconSource::CircleFont, "assets/icons.cf");
 	Glim::Slider::Init(windowSize);
-
-	testCircleFont.CreateFromFile("assets/icons.cf");
-	theGlyph = testCircleFont.Add(0, { windowSize[0] / 2.0f - 120, windowSize[1] / 2.0f - 120 }, 240, {0.0, 0.0, 0.0, 1.0});
+	Glim::Checkbox::Init(windowSize);
 
 	int addNodeSelectionBoxID = -1;
 	int addNodeSelectionBox2ID = -1;
@@ -181,35 +174,32 @@ int main()
 		}
 
 		// floating buttons
-		if (Glim::FloatingButton::Evaluate(Glim::Corner::BottomRight, 65.0f, 0))
+		if (Glim::FloatingButton::Evaluate({ windowSize[0] - 18.0f - 65.0f, windowSize[1] - 18.0f - 65.0f }, 65.0f, 0))
 		{
 			std::cout << "hierarchy button clicked\n";
 			if (addNodeSelectionBoxID == -1)
 				addNodeSelectionBoxID = Glim::SelectionBox::Create(
-					&categoryOptions, Glim::FloatingButton::GetLastButtonPosition(), Glim::Corner::BottomRight);
+					&categoryOptions, { windowSize[0] - 18.0f - 65.0f / 2.0f, windowSize[1] - 18.0f - 65.0f / 2.0f }, Glim::Corner::BottomRight);
 		}
-		if (Glim::FloatingButton::Evaluate(Glim::Corner::TopLeft, 65.0f, 1))
+		if (Glim::FloatingButton::Evaluate({ 18.0f, 18.0f }, 65.0f, 1))
 		{
 			std::cout << "file button clicked\n";
 			if (fileSelectionBoxID == -1)
 				fileSelectionBoxID = Glim::SelectionBox::Create(
-					&fileSelectionBoxOptions, Glim::FloatingButton::GetLastButtonPosition());
+					&fileSelectionBoxOptions, { 18.0f + 65.0f / 2.0f, 18.0f + 65.0f / 2.0f });
 		}
 
-		Glim::Slider::Evaluate({ windowSize[0] / 2.0f - 150.0f, windowSize[1] - 70 }, 300, &sliderAValue);
-		Glim::Slider::Evaluate({ windowSize[0] / 2.0f - 50.0f, windowSize[1] - 40 }, 100, &sliderBValue);
-		{
-			int glyphId = sliderBValue * (testCircleFont.GetGlyphCount() - 1);
-			testCircleFont.ChangeGlyph(theGlyph, glyphId);
-		}
+		Glim::Slider::Evaluate({ windowSize[0] / 2.0f - 150.0f, windowSize[1] - 70 }, 300, &sliderValue);
 
-		float newIconSize = sliderAValue * 1024.0f + 5.0f;
-		testCircleFont.UpdatePosition(theGlyph, { windowSize[0] / 2.0 - newIconSize / 2.0, windowSize[1] / 2.0 - newIconSize / 2.0 });
-		testCircleFont.UpdateSize(theGlyph, newIconSize);
+		Glim::Text::Element("The quick brown fox jumps over the lazy dog", { windowSize[0] / 2.0f ,  windowSize[1] / 2.0f }, sliderValue * 100.0f + 9.0f, 0, 0x000000ff, Glim::Alignment::Center);
+
 
 		// glim code end ----------------
 
 		//Glim::Render();
+		Glim::Slider::BeforeDraw();
+		Glim::Checkbox::BeforeDraw();
+		Glim::FloatingButton::BeforeDraw();
 		Glim::Geometry::DrawAll();
 		Glim::Text::DrawAll();
 
@@ -220,6 +210,7 @@ int main()
 		Glim::FloatingButton::FrameEnd();
 		Glim::SelectionBox::FrameEnd();
 		Glim::Slider::FrameEnd();
+		Glim::Checkbox::FrameEnd();
 		glfwWaitEvents();
 	}
 
