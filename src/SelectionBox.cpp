@@ -156,7 +156,7 @@ int Glim::SelectionBox::Evaluate(int selectionBoxID)
 	evaluationHandled = collisionResult > -1;
 
 	if (evaluationHandled)
-		lastSelectionPos = { pos.x, pos.y + CORNER_RADIUS * 2 + OPTION_HEIGHT * (collisionResult + 1) };
+		lastSelectionPos = { pos.x, pos.y + CORNER_RADIUS * 2 + OPTION_HEIGHT * (collisionResult) };
 	else
 		lastSelectionPos = { -1, -1 };
 
@@ -178,11 +178,12 @@ int Glim::SelectionBox::Evaluate(int selectionBoxID)
 	return Selection::None;
 }
 
-const glm::vec2& Glim::SelectionBox::GetLastSelectionPosition(bool leftSide)
+const glm::vec2& Glim::SelectionBox::GetLastSelectionPosition(Corner corner)
 {
-	if (leftSide)
-		return lastSelectionPos;
-	lastSelectionPos.x += BOX_WIDTH;
+	if (corner == Corner::BottomRight || corner == Corner::TopRight)
+		lastSelectionPos.x += BOX_WIDTH;
+	if (corner == Corner::BottomRight || corner == Corner::BottomLeft)
+		lastSelectionPos.y += OPTION_HEIGHT;
 	return lastSelectionPos;
 }
 

@@ -14,9 +14,8 @@ namespace Glim::SelectionBox {
 
 	int Create(const std::vector<std::string>* options, const glm::vec2& position, Corner cornerAtPos = Corner::TopLeft);
 	int Evaluate(int selectionBoxID);
-	const glm::vec2& GetLastSelectionPosition(bool leftSide = false);
+	const glm::vec2& GetLastSelectionPosition(Corner corner = Corner::TopLeft);
 	void Delete(int selectionBoxID);
-
 
 	void FrameEnd();
 }
