@@ -82,6 +82,11 @@ void Glim::Checkbox::Evaluate(const glm::vec2& position, bool* value)
 	return;
 }
 
+float Glim::Checkbox::GetSize()
+{
+	return QUAD_SIZE;
+}
+
 void Glim::Checkbox::BeforeDraw()
 {
 	while (currentCheckboxID < checkboxes.size())

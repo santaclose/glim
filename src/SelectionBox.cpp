@@ -178,6 +178,11 @@ int Glim::SelectionBox::Evaluate(int selectionBoxID)
 	return Selection::None;
 }
 
+float GetWidth()
+{
+	return BOX_WIDTH;
+}
+
 const glm::vec2& Glim::SelectionBox::GetLastSelectionPosition(Corner corner)
 {
 	if (corner == Corner::BottomRight || corner == Corner::TopRight)

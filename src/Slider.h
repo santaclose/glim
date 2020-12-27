@@ -8,6 +8,8 @@ namespace Glim::Slider {
 
 	void Evaluate(const glm::vec2& position, float sizeInPixels, float* value);
 
+	float GetHeight();
+
 	void BeforeDraw();
 	void FrameEnd();
 }

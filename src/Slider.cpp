@@ -106,6 +106,11 @@ void Glim::Slider::Evaluate(const glm::vec2& position, float size, float* value)
 	return;
 }
 
+float Glim::Slider::GetHeight()
+{
+	return QUAD_HEIGHT;
+}
+
 void Glim::Slider::BeforeDraw()
 {
 	while (currentSliderID < sliders.size())

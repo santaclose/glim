@@ -8,6 +8,8 @@ namespace Glim::Checkbox {
 
 	void Evaluate(const glm::vec2& position, bool* value);
 
+	float GetSize();
+
 	void BeforeDraw();
 	void FrameEnd();
 }
