@@ -77,8 +77,10 @@ void Glim::Slider::Evaluate(const glm::vec2& position, float size, float* value)
 
 	float minPos = sliders[currentSliderID].pos.x + HANDLE_RADIUS;
 	float maxPos = sliders[currentSliderID].pos.x + sliders[currentSliderID].size - HANDLE_RADIUS;
-	if (CollisionTest(currentSliderID) && Input::MouseButtonDown(0))
+	if (CollisionTest(currentSliderID) && Input::MouseButtonDown(0) && !Input::cursorCollisionDetected)
 	{
+		Input::cursorCollisionDetected = true;
+
 		currentlyDraggingSlider = currentSliderID;
 
 		float valueFromMousePos = (Input::mousePos[0] - minPos) / (maxPos - minPos);

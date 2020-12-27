@@ -6,6 +6,7 @@ namespace Glim::Input {
 	bool mouseButtonsPressing[3] = { false, false, false };
 	bool mouseButtons[3] = { false, false, false };
 	float mousePos[2];
+	bool cursorCollisionDetected = false;
 }
 
 void Glim::Input::UpdateMouseButtons(int button, int action)
@@ -26,6 +27,7 @@ void Glim::Input::FrameEnd()
 		mouseButtonsPressing[1] =
 		mouseButtonsReleasing[2] =
 		mouseButtonsPressing[2] = false;
+	cursorCollisionDetected = false;
 }
 
 void Glim::Input::UpdateMousePosition(double xpos, double ypos)

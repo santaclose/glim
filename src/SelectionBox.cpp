@@ -168,8 +168,11 @@ int Glim::SelectionBox::Evaluate(int selectionBoxID)
 	shader.Bind();
 	shader.SetUniform4fv("u_SelectionData", &shaderUniformData.x);
 
-	if (Input::MouseButtonDown(0))
+	if (Input::MouseButtonDown(0) && !Input::cursorCollisionDetected)
+	{
+		Input::cursorCollisionDetected = true;
 		return collisionResult;
+	}
 
 	// user has not made a selection
 	return Selection::None;

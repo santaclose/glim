@@ -67,8 +67,11 @@ void Glim::Checkbox::Evaluate(const glm::vec2& position, bool* value)
 	quads.UpdateQuadVertexCoords(checkboxes[currentCheckboxID].geometryIndex, checkboxes[currentCheckboxID].pos, { QUAD_SIZE, QUAD_SIZE });
 	quads.UpdateQuadColor(checkboxes[currentCheckboxID].geometryIndex, COLOR);
 
-	if (CollisionTest(currentCheckboxID) && Input::MouseButtonDown(0))
+	if (CollisionTest(currentCheckboxID) && Input::MouseButtonDown(0) && !Input::cursorCollisionDetected)
+	{
 		*checkboxes[currentCheckboxID].value = !*checkboxes[currentCheckboxID].value;
+		Glim::Input::cursorCollisionDetected = true;
+	}
 
 	quads.UpdateQuadData(checkboxes[currentCheckboxID].geometryIndex,
 		{ checkboxes[currentCheckboxID].pos.x, checkboxes[currentCheckboxID].pos.y,

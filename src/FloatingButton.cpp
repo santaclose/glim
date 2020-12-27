@@ -100,7 +100,12 @@ bool Glim::FloatingButton::Evaluate(const glm::vec2& position, float size, int i
 		{ buttons[currentButtonID].pos.x, buttons[currentButtonID].pos.y, buttons[currentButtonID].size, 0.0f });
 
 	currentButtonID++;
-	return collided && Glim::Input::MouseButtonDown(0);
+	if (collided && Input::MouseButtonDown(0) && !Input::cursorCollisionDetected)
+	{
+		Input::cursorCollisionDetected = true;
+		return true;
+	}
+	return false;
 }
 
 void Glim::FloatingButton::FrameBegin()

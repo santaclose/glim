@@ -2,6 +2,8 @@
 
 namespace Glim::Input {
 
+
+	extern bool cursorCollisionDetected;
 	extern bool mouseButtons[3];
 	extern float mousePos[2];
 
