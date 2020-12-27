@@ -26,19 +26,43 @@ void main()
 
     o_Color.rgba = b_Color.rgba;
 
-    float middleRailPosY = (topLeftQuadPos.y + bottomRightQuadPos.y) / 2.0;
+    float railRectangle;
+    float handleCircle;
 
-    float railRectangle = float(
-        b_Pos.x > topLeftQuadPos.x + u_HandleRadius + u_SideMargin &&
-        b_Pos.x < bottomRightQuadPos.x - u_HandleRadius - u_SideMargin &&
-        b_Pos.y > middleRailPosY - u_RailThickness / 2.0 &&
-        b_Pos.y < middleRailPosY + u_RailThickness / 2.0
-        );
+    // horizontal slider
+    if (b_MoreData.y == 0.0)
+    {
+        float middleRailPosY = (topLeftQuadPos.y + bottomRightQuadPos.y) / 2.0;
 
-    float handleCircle = positiveCircle(
-        vec2(mix(topLeftQuadPos.x + u_HandleRadius + u_SideMargin, bottomRightQuadPos.x - u_HandleRadius - u_SideMargin, b_MoreData.x), middleRailPosY),
-        u_HandleRadius
+        railRectangle = float(
+            b_Pos.x > topLeftQuadPos.x + u_HandleRadius + u_SideMargin &&
+            b_Pos.x < bottomRightQuadPos.x - u_HandleRadius - u_SideMargin &&
+            b_Pos.y > middleRailPosY - u_RailThickness / 2.0 &&
+            b_Pos.y < middleRailPosY + u_RailThickness / 2.0
+            );
+
+        handleCircle = positiveCircle(
+            vec2(mix(topLeftQuadPos.x + u_HandleRadius + u_SideMargin, bottomRightQuadPos.x - u_HandleRadius - u_SideMargin, b_MoreData.x), middleRailPosY),
+            u_HandleRadius
         );
+    }
+    // vertical slider
+    else
+    {
+        float middleRailPosX = (topLeftQuadPos.x + bottomRightQuadPos.x) / 2.0;
+
+        railRectangle = float(
+            b_Pos.y > topLeftQuadPos.y + u_HandleRadius + u_SideMargin &&
+            b_Pos.y < bottomRightQuadPos.y - u_HandleRadius - u_SideMargin &&
+            b_Pos.x > middleRailPosX - u_RailThickness / 2.0 &&
+            b_Pos.x < middleRailPosX + u_RailThickness / 2.0
+            );
+
+        handleCircle = positiveCircle(
+            vec2(middleRailPosX, mix(topLeftQuadPos.y + u_HandleRadius + u_SideMargin, bottomRightQuadPos.y - u_HandleRadius - u_SideMargin, b_MoreData.x)),
+            u_HandleRadius
+        );
+    }
 
     o_Color.a = min(railRectangle + handleCircle, o_Color.a);
     o_Color.rgb -= vec3(railRectangle * 0.1 * (1.0 - handleCircle));

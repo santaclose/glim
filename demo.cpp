@@ -190,11 +190,11 @@ int main()
 					&fileSelectionBoxOptions, { 18.0f + 65.0f / 2.0f, 18.0f + 65.0f / 2.0f });
 		}
 
-		Glim::Checkbox::Evaluate({ windowSize[0] / 2.0f - 200.0f, windowSize[1] - 70.0f - Glim::Checkbox::GetSize() / 2.0f }, &checkboxValue);
+		Glim::Checkbox::Evaluate({ windowSize[0] / 2.0f - 150.0f - Glim::Checkbox::GetSize(), windowSize[1] - 70.0f - Glim::Checkbox::GetSize() / 2.0f }, &checkboxValue);
 		if (checkboxValue)
 			sliderValue = sin(glfwGetTime()) * 0.5f + 0.5f;
 
-		Glim::Slider::Evaluate({ windowSize[0] / 2.0f - 150.0f, windowSize[1] - 70.0f - Glim::Slider::GetHeight() / 2.0f }, 300, &sliderValue);
+		Glim::Slider::Evaluate({ windowSize[0] / 2.0f - 150.0f, windowSize[1] - 70.0f - Glim::Slider::GetWidth() / 2.0f }, 300, &sliderValue);
 
 		Glim::Text::Element(
 			"The quick brown fox jumps over the lazy dog",
