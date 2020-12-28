@@ -1,15 +1,36 @@
 #pragma once
 #include <cstdint>
 #include <glm/glm.hpp>
+#include "Geometry.h"
+#include "Shader.h"
 
-namespace Glim::Checkbox {
+namespace Glim {
 
-	void Init(const uint32_t* windowSize);
+	class Checkbox {
+	private:
+		struct CheckboxInfo {
 
-	void Evaluate(const glm::vec2& position, bool* value);
+			uint32_t geometryIndex;
+			glm::vec2 pos;
+			float size;
+			bool* value;
+		};
 
-	float GetSize();
+		int m_currentID = 0;
+		std::vector<CheckboxInfo> m_checkboxes;
 
-	void BeforeDraw();
-	void FrameEnd();
+		const uint32_t* m_windowSize;
+		Shader m_shader;
+		Geometry m_quads;
+
+		bool CollisionTest(int checkboxID);
+
+	public:
+		void Init(const uint32_t* windowSize);
+		void Evaluate(const glm::vec2& position, bool* value);
+		float GetSize();
+
+		void BeforeDraw();
+		void FrameEnd();
+	};
 }

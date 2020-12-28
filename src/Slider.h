@@ -2,15 +2,42 @@
 #include <cstdint>
 #include <glm/glm.hpp>
 #include "Enums.h"
+#include "Geometry.h"
+#include "Shader.h"
 
-namespace Glim::Slider {
+namespace Glim {
+	
+	class Slider {
+	private:
+		struct SliderInfo {
 
-	void Init(const uint32_t* windowSize);
+			uint32_t geometryIndex;
+			glm::vec2 pos;
+			Orientation orientation;
+			float size;
+			float* value;
+		};
 
-	void Evaluate(const glm::vec2& position, float sizeInPixels, float* value, Orientation orientation = Orientation::Horizontal);
+		int m_currentID = 0;
+		std::vector<SliderInfo> m_sliders;
 
-	float GetWidth();
+		const uint32_t* m_windowSize;
+		Shader m_shader;
+		Geometry m_quads;
 
-	void BeforeDraw();
-	void FrameEnd();
+		int m_currentlyDraggingSlider = -1;
+		float m_draggingOffset;
+
+		bool CollisionTest(int sliderID);
+
+	public:
+		void Init(const uint32_t* windowSize);
+
+		void Evaluate(const glm::vec2& position, float sizeInPixels, float* value, Orientation orientation = Orientation::Horizontal);
+
+		float GetWidth();
+
+		void BeforeDraw();
+		void FrameEnd();
+	};
 }

@@ -1,6 +1,4 @@
 #include "Slider.h"
-#include "Geometry.h"
-#include "Shader.h"
 #include "Input.h"
 #include <iostream>
 
@@ -11,50 +9,27 @@
 
 #define COLOR { 0.35f, 0.35f, 0.35f, 0.9f }
 
-namespace Glim::Slider {
-
-	struct SliderInfo {
-
-		uint32_t geometryIndex;
-		glm::vec2 pos;
-		Orientation orientation;
-		float size;
-		float* value;
-	};
-
-	int currentSliderID = 0;
-	std::vector<SliderInfo> sliders;
-
-	const uint32_t* windowSize;
-	Shader shader;
-	Geometry quads;
-
-	int currentlyDraggingSlider = -1;
-	float draggingOffset;
-
-	bool CollisionTest(int sliderID);
-}
 
 bool Glim::Slider::CollisionTest(int sliderID)
 {
 	glm::vec2 circleCenter;
-	if (sliders[sliderID].orientation == Orientation::Horizontal)
+	if (m_sliders[sliderID].orientation == Orientation::Horizontal)
 	{
 		circleCenter.x = glm::mix(
-			sliders[sliderID].pos.x + HANDLE_RADIUS + SIDE_MARGIN,
-			sliders[sliderID].pos.x + sliders[sliderID].size - HANDLE_RADIUS - SIDE_MARGIN,
-			*sliders[sliderID].value
+			m_sliders[sliderID].pos.x + HANDLE_RADIUS + SIDE_MARGIN,
+			m_sliders[sliderID].pos.x + m_sliders[sliderID].size - HANDLE_RADIUS - SIDE_MARGIN,
+			*m_sliders[sliderID].value
 		);
-		circleCenter.y = sliders[sliderID].pos.y + QUAD_WIDTH / 2.0f;
+		circleCenter.y = m_sliders[sliderID].pos.y + QUAD_WIDTH / 2.0f;
 		return glm::distance(circleCenter, *((glm::vec2*)&(Glim::Input::mousePos[0]))) < HANDLE_RADIUS;
 	}
 	else
 	{
-		circleCenter.x = sliders[sliderID].pos.x + QUAD_WIDTH / 2.0f;
+		circleCenter.x = m_sliders[sliderID].pos.x + QUAD_WIDTH / 2.0f;
 		circleCenter.y = glm::mix(
-			sliders[sliderID].pos.y + HANDLE_RADIUS + SIDE_MARGIN,
-			sliders[sliderID].pos.y + sliders[sliderID].size - HANDLE_RADIUS - SIDE_MARGIN,
-			*sliders[sliderID].value
+			m_sliders[sliderID].pos.y + HANDLE_RADIUS + SIDE_MARGIN,
+			m_sliders[sliderID].pos.y + m_sliders[sliderID].size - HANDLE_RADIUS - SIDE_MARGIN,
+			*m_sliders[sliderID].value
 		);
 		return glm::distance(circleCenter, *((glm::vec2*)&(Glim::Input::mousePos[0]))) < HANDLE_RADIUS;
 	}
@@ -62,86 +37,86 @@ bool Glim::Slider::CollisionTest(int sliderID)
 
 void Glim::Slider::Init(const uint32_t* windowSize)
 {
-	Slider::windowSize = windowSize;
+	m_windowSize = windowSize;
 
-	shader.CreateFromFiles("assets/shaders/vert.glsl", "assets/shaders/slider.glsl");
-	shader.Bind();
-	shader.SetUniform1f("u_HandleRadius", HANDLE_RADIUS);
-	shader.SetUniform1f("u_RailThickness", RAIL_THICKNESS);
-	shader.SetUniform1f("u_SideMargin", SIDE_MARGIN);
+	m_shader.CreateFromFiles("assets/shaders/vert.glsl", "assets/shaders/slider.glsl");
+	m_shader.Bind();
+	m_shader.SetUniform1f("u_HandleRadius", HANDLE_RADIUS);
+	m_shader.SetUniform1f("u_RailThickness", RAIL_THICKNESS);
+	m_shader.SetUniform1f("u_SideMargin", SIDE_MARGIN);
 
-	quads.CreateFromShader(&shader);
+	m_quads.CreateFromShader(&m_shader);
 }
 
 void Glim::Slider::Evaluate(const glm::vec2& position, float size, float* value, Orientation orientation)
 {
-	if (currentSliderID == sliders.size())
+	if (m_currentID == m_sliders.size())
 	{
-		sliders.emplace_back();
-		sliders.back().geometryIndex = quads.CreateQuad();
+		m_sliders.emplace_back();
+		m_sliders.back().geometryIndex = m_quads.CreateQuad();
 	}
 
-	sliders[currentSliderID].pos = position;
-	sliders[currentSliderID].value = value;
-	sliders[currentSliderID].size = size;
-	sliders[currentSliderID].orientation = orientation;
+	m_sliders[m_currentID].pos = position;
+	m_sliders[m_currentID].value = value;
+	m_sliders[m_currentID].size = size;
+	m_sliders[m_currentID].orientation = orientation;
 
 	if (orientation == Orientation::Horizontal)
-		quads.UpdateQuadVertexCoords(sliders[currentSliderID].geometryIndex, sliders[currentSliderID].pos, { size, QUAD_WIDTH });
+		m_quads.UpdateQuadVertexCoords(m_sliders[m_currentID].geometryIndex, m_sliders[m_currentID].pos, { size, QUAD_WIDTH });
 	else
-		quads.UpdateQuadVertexCoords(sliders[currentSliderID].geometryIndex, sliders[currentSliderID].pos, { QUAD_WIDTH, size });
+		m_quads.UpdateQuadVertexCoords(m_sliders[m_currentID].geometryIndex, m_sliders[m_currentID].pos, { QUAD_WIDTH, size });
 
-	quads.UpdateQuadColor(sliders[currentSliderID].geometryIndex, COLOR);
+	m_quads.UpdateQuadColor(m_sliders[m_currentID].geometryIndex, COLOR);
 
 	float minPos;
 	float maxPos;
-	if (sliders[currentSliderID].orientation == Orientation::Horizontal)
+	if (m_sliders[m_currentID].orientation == Orientation::Horizontal)
 	{
-		minPos = sliders[currentSliderID].pos.x + HANDLE_RADIUS;
-		maxPos = sliders[currentSliderID].pos.x + sliders[currentSliderID].size - HANDLE_RADIUS;
+		minPos = m_sliders[m_currentID].pos.x + HANDLE_RADIUS;
+		maxPos = m_sliders[m_currentID].pos.x + m_sliders[m_currentID].size - HANDLE_RADIUS;
 	}
 	else
 	{
-		minPos = sliders[currentSliderID].pos.y + HANDLE_RADIUS;
-		maxPos = sliders[currentSliderID].pos.y + sliders[currentSliderID].size - HANDLE_RADIUS;
+		minPos = m_sliders[m_currentID].pos.y + HANDLE_RADIUS;
+		maxPos = m_sliders[m_currentID].pos.y + m_sliders[m_currentID].size - HANDLE_RADIUS;
 	}
 
-	if (CollisionTest(currentSliderID) && Input::MouseButtonDown(0) && !Input::cursorCollisionDetected)
+	if (CollisionTest(m_currentID) && Input::MouseButtonDown(0) && !Input::cursorCollisionDetected)
 	{
 		Input::cursorCollisionDetected = true;
 
-		currentlyDraggingSlider = currentSliderID;
+		m_currentlyDraggingSlider = m_currentID;
 
-		float valueFromMousePos = sliders[currentSliderID].orientation == Orientation::Horizontal ?
+		float valueFromMousePos = m_sliders[m_currentID].orientation == Orientation::Horizontal ?
 			(Input::mousePos[0] - minPos) / (maxPos - minPos) :
 			(Input::mousePos[1] - minPos) / (maxPos - minPos);
-		draggingOffset = *sliders[currentSliderID].value - valueFromMousePos;
+		m_draggingOffset = *m_sliders[m_currentID].value - valueFromMousePos;
 	}
 
-	if (currentlyDraggingSlider == currentSliderID)
+	if (m_currentlyDraggingSlider == m_currentID)
 	{
-		float valueFromMousePos = sliders[currentSliderID].orientation == Orientation::Horizontal ?
+		float valueFromMousePos = m_sliders[m_currentID].orientation == Orientation::Horizontal ?
 			(Input::mousePos[0] - minPos) / (maxPos - minPos) :
 			(Input::mousePos[1] - minPos) / (maxPos - minPos);
 
-		*sliders[currentSliderID].value = glm::clamp(valueFromMousePos + draggingOffset, 0.0f, 1.0f);
+		*m_sliders[m_currentID].value = glm::clamp(valueFromMousePos + m_draggingOffset, 0.0f, 1.0f);
 
 		if (Input::MouseButtonUp(0))
-			currentlyDraggingSlider = -1;
+			m_currentlyDraggingSlider = -1;
 	}
 
 	if (orientation == Orientation::Horizontal)
-		quads.UpdateQuadData(sliders[currentSliderID].geometryIndex,
-			{ sliders[currentSliderID].pos.x, sliders[currentSliderID].pos.y,
-			  sliders[currentSliderID].pos.x + size, sliders[currentSliderID].pos.y + QUAD_WIDTH },
-			{ *sliders[currentSliderID].value, 0.0f, 0.0f, 0.0f });
+		m_quads.UpdateQuadData(m_sliders[m_currentID].geometryIndex,
+			{ m_sliders[m_currentID].pos.x, m_sliders[m_currentID].pos.y,
+			  m_sliders[m_currentID].pos.x + size, m_sliders[m_currentID].pos.y + QUAD_WIDTH },
+			{ *m_sliders[m_currentID].value, 0.0f, 0.0f, 0.0f });
 	else
-		quads.UpdateQuadData(sliders[currentSliderID].geometryIndex,
-			{ sliders[currentSliderID].pos.x, sliders[currentSliderID].pos.y,
-			  sliders[currentSliderID].pos.x + QUAD_WIDTH, sliders[currentSliderID].pos.y + size },
-			{ *sliders[currentSliderID].value, 1.0f, 0.0f, 0.0f });
+		m_quads.UpdateQuadData(m_sliders[m_currentID].geometryIndex,
+			{ m_sliders[m_currentID].pos.x, m_sliders[m_currentID].pos.y,
+			  m_sliders[m_currentID].pos.x + QUAD_WIDTH, m_sliders[m_currentID].pos.y + size },
+			{ *m_sliders[m_currentID].value, 1.0f, 0.0f, 0.0f });
 
-	currentSliderID++;
+	m_currentID++;
 	return;
 }
 
@@ -152,15 +127,15 @@ float Glim::Slider::GetWidth()
 
 void Glim::Slider::BeforeDraw()
 {
-	// hide all the unused sliders
-	while (currentSliderID < sliders.size())
+	// hide all the unused m_sliders
+	while (m_currentID < m_sliders.size())
 	{
-		quads.UpdateQuadColor(sliders[currentSliderID].geometryIndex, { 0.0f, 0.0f, 0.0f, 0.0f });
-		currentSliderID++;
+		m_quads.UpdateQuadColor(m_sliders[m_currentID].geometryIndex, { 0.0f, 0.0f, 0.0f, 0.0f });
+		m_currentID++;
 	}
 }
 
 void Glim::Slider::FrameEnd()
 {
-	currentSliderID = 0;
+	m_currentID = 0;
 }

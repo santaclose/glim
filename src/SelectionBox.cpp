@@ -1,5 +1,4 @@
 #include "SelectionBox.h"
-#include "Geometry.h"
 #include "Input.h"
 #include "Text.h"
 
@@ -12,37 +11,11 @@
 #define TEXT_Y_OFFSET 9.0f
 #define COLOR { 0.3f, 0.3f, 0.3f, 0.8f }
 
-namespace Glim::SelectionBox {
-
-	struct BoxInfo {
-
-		glm::vec2 pos;
-		const std::vector<std::string>* options;
-		uint32_t geometryIndex;
-		Corner cornerAtPos;
-	};
-
-	unsigned int fontID;
-	bool evaluationHandled = false;
-	int currentOnScreenBoxCount = 0;
-	glm::vec2 lastSelectionPos = {-1, -1};
-
-	const uint32_t* windowSize;
-	Geometry quads; // one quad for each selection box displayed at the same time
-	Shader shader;
-
-	glm::vec4 shaderUniformData = { -1.0f, 0.0f, 0.0f, 0.0f };
-
-	std::vector<BoxInfo> selectionBoxes;
-
-	int CollisionTest(int selectionBoxID);
-}
-
 int Glim::SelectionBox::CollisionTest(int selectionBoxID)
 {
-	unsigned int optionCount = selectionBoxes[selectionBoxID].options->size();
+	unsigned int optionCount = m_selectionBoxes[selectionBoxID].options->size();
 
-	const glm::vec2& upperLeftCornerPos = quads.GetVertexPos(selectionBoxID * 4);
+	const glm::vec2& upperLeftCornerPos = m_quads.GetVertexPos(selectionBoxID * 4);
 	if (Glim::Input::mousePos[0] < upperLeftCornerPos.x ||
 		Glim::Input::mousePos[0] > upperLeftCornerPos.x + BOX_WIDTH)
 		return -1;
@@ -59,32 +32,32 @@ int Glim::SelectionBox::CollisionTest(int selectionBoxID)
 
 void Glim::SelectionBox::Init(const uint32_t* windowSize)
 {
-	SelectionBox::windowSize = windowSize;
+	m_windowSize = windowSize;
 
-	shader.CreateFromFiles("assets/shaders/vert.glsl", "assets/shaders/selectionBox.glsl");
-	shader.Bind();
-	shader.SetUniform1f("u_Radius", CORNER_RADIUS);
-	shader.SetUniform1f("u_OptionHeight", OPTION_HEIGHT);
-	shader.SetUniform4fv("u_SelectionData", &shaderUniformData.x);
-	quads.CreateFromShader(&shader);
+	m_shader.CreateFromFiles("assets/shaders/vert.glsl", "assets/shaders/selectionBox.glsl");
+	m_shader.Bind();
+	m_shader.SetUniform1f("u_Radius", CORNER_RADIUS);
+	m_shader.SetUniform1f("u_OptionHeight", OPTION_HEIGHT);
+	m_shader.SetUniform4fv("u_SelectionData", &m_shaderUniformData.x);
+	m_quads.CreateFromShader(&m_shader);
 
-	fontID = Glim::Text::CreateFontFromFile("assets/fonts/Open_Sans/OpenSans-Regular.ttf");
+	m_fontID = Glim::Text::CreateFontFromFile("assets/fonts/Open_Sans/OpenSans-Regular.ttf");
 }
 
 void Glim::SelectionBox::OnResize()
 {
-	for (int i = 0; i < currentOnScreenBoxCount; i++)
+	for (int i = 0; i < m_currentOnScreenBoxCount; i++)
 	{
-		glm::vec2 pos = selectionBoxes[i].pos;
-		glm::vec2 boxSize = { BOX_WIDTH, OPTION_HEIGHT * selectionBoxes[i].options->size() + CORNER_RADIUS * 2.0f };
-		if (selectionBoxes[i].cornerAtPos == Corner::BottomRight ||
-			selectionBoxes[i].cornerAtPos == Corner::TopRight)
+		glm::vec2 pos = m_selectionBoxes[i].pos;
+		glm::vec2 boxSize = { BOX_WIDTH, OPTION_HEIGHT * m_selectionBoxes[i].options->size() + CORNER_RADIUS * 2.0f };
+		if (m_selectionBoxes[i].cornerAtPos == Corner::BottomRight ||
+			m_selectionBoxes[i].cornerAtPos == Corner::TopRight)
 			pos.x -= boxSize.x;
-		if (selectionBoxes[i].cornerAtPos == Corner::BottomLeft ||
-			selectionBoxes[i].cornerAtPos == Corner::BottomRight)
+		if (m_selectionBoxes[i].cornerAtPos == Corner::BottomLeft ||
+			m_selectionBoxes[i].cornerAtPos == Corner::BottomRight)
 			pos.y -= boxSize.y;
-		quads.UpdateQuadVertexCoords(selectionBoxes[i].geometryIndex, pos, boxSize);
-		quads.UpdateQuadData(selectionBoxes[i].geometryIndex,
+		m_quads.UpdateQuadVertexCoords(m_selectionBoxes[i].geometryIndex, pos, boxSize);
+		m_quads.UpdateQuadData(m_selectionBoxes[i].geometryIndex,
 			{
 				pos.x, pos.y,
 				pos.x + boxSize.x, pos.y + boxSize.y
@@ -103,70 +76,70 @@ int Glim::SelectionBox::Create(const std::vector<std::string>* options, const gl
 		cornerAtPos == Corner::BottomRight)
 		pos.y -= boxSize.y;
 
-	if (currentOnScreenBoxCount == selectionBoxes.size()) // need to create a quad
+	if (m_currentOnScreenBoxCount == m_selectionBoxes.size()) // need to create a quad
 	{
-		unsigned int quadID = quads.CreateQuad(pos, boxSize, COLOR,
+		unsigned int quadID = m_quads.CreateQuad(pos, boxSize, COLOR,
 		{
 			pos.x, pos.y,
 			pos.x + boxSize.x, pos.y + boxSize.y
 		});
-		selectionBoxes.push_back({ position, options, quadID, cornerAtPos });
+		m_selectionBoxes.push_back({ position, options, quadID, cornerAtPos });
 	}
 	else
 	{
-		quads.UpdateQuadVertexCoords(selectionBoxes[currentOnScreenBoxCount].geometryIndex, pos, boxSize);
-		quads.UpdateQuadColor(selectionBoxes[currentOnScreenBoxCount].geometryIndex, COLOR);
-		quads.UpdateQuadData(selectionBoxes[currentOnScreenBoxCount].geometryIndex,
+		m_quads.UpdateQuadVertexCoords(m_selectionBoxes[m_currentOnScreenBoxCount].geometryIndex, pos, boxSize);
+		m_quads.UpdateQuadColor(m_selectionBoxes[m_currentOnScreenBoxCount].geometryIndex, COLOR);
+		m_quads.UpdateQuadData(m_selectionBoxes[m_currentOnScreenBoxCount].geometryIndex,
 			{
 				pos.x, pos.y,
 				pos.x + boxSize.x, pos.y + boxSize.y
 			});
-		selectionBoxes[currentOnScreenBoxCount].options = options;
-		selectionBoxes[currentOnScreenBoxCount].pos = position;
-		selectionBoxes[currentOnScreenBoxCount].cornerAtPos = cornerAtPos;
+		m_selectionBoxes[m_currentOnScreenBoxCount].options = options;
+		m_selectionBoxes[m_currentOnScreenBoxCount].pos = position;
+		m_selectionBoxes[m_currentOnScreenBoxCount].cornerAtPos = cornerAtPos;
 	}
 
-	currentOnScreenBoxCount++;
-	return currentOnScreenBoxCount - 1;
+	m_currentOnScreenBoxCount++;
+	return m_currentOnScreenBoxCount - 1;
 }
 
 int Glim::SelectionBox::Evaluate(int selectionBoxID)
 {
-	glm::vec2 pos = selectionBoxes[selectionBoxID].pos;
-	glm::vec2 quadSize = { BOX_WIDTH, OPTION_HEIGHT * selectionBoxes[selectionBoxID].options->size() + CORNER_RADIUS * 2.0f };
-	if (selectionBoxes[selectionBoxID].cornerAtPos == Corner::BottomRight ||
-		selectionBoxes[selectionBoxID].cornerAtPos == Corner::TopRight)
+	glm::vec2 pos = m_selectionBoxes[selectionBoxID].pos;
+	glm::vec2 quadSize = { BOX_WIDTH, OPTION_HEIGHT * m_selectionBoxes[selectionBoxID].options->size() + CORNER_RADIUS * 2.0f };
+	if (m_selectionBoxes[selectionBoxID].cornerAtPos == Corner::BottomRight ||
+		m_selectionBoxes[selectionBoxID].cornerAtPos == Corner::TopRight)
 		pos.x -= quadSize.x;
-	if (selectionBoxes[selectionBoxID].cornerAtPos == Corner::BottomLeft ||
-		selectionBoxes[selectionBoxID].cornerAtPos == Corner::BottomRight)
+	if (m_selectionBoxes[selectionBoxID].cornerAtPos == Corner::BottomLeft ||
+		m_selectionBoxes[selectionBoxID].cornerAtPos == Corner::BottomRight)
 		pos.y -= quadSize.y;
 
-	for (int i = 0; i < selectionBoxes[selectionBoxID].options->size(); i++)
+	for (int i = 0; i < m_selectionBoxes[selectionBoxID].options->size(); i++)
 	{
 		Text::Element(
-			(*(selectionBoxes[selectionBoxID].options))[i],
+			(*(m_selectionBoxes[selectionBoxID].options))[i],
 			{ pos.x + BOX_WIDTH / 2.0f, pos.y + CORNER_RADIUS + OPTION_HEIGHT * (i + 1) - TEXT_Y_OFFSET },
-			TEXT_SIZE, fontID, 0xffffffff, Glim::Alignment::Center);
+			TEXT_SIZE, m_fontID, 0xffffffff, Glim::Alignment::Center);
 	}
 
-	if (evaluationHandled)
+	if (m_evaluationHandled)
 		return Selection::None;
 
 	int collisionResult = CollisionTest(selectionBoxID);
-	evaluationHandled = collisionResult > -1;
+	m_evaluationHandled = collisionResult > -1;
 
-	if (evaluationHandled)
-		lastSelectionPos = { pos.x, pos.y + CORNER_RADIUS * 2 + OPTION_HEIGHT * (collisionResult) };
+	if (m_evaluationHandled)
+		m_lastSelectionPos = { pos.x, pos.y + CORNER_RADIUS * 2 + OPTION_HEIGHT * (collisionResult) };
 	else
-		lastSelectionPos = { -1, -1 };
+		m_lastSelectionPos = { -1, -1 };
 
-	shaderUniformData = {
+	m_shaderUniformData = {
 		(float) collisionResult,
 		pos.x,
-		quads.GetVertexPos(selectionBoxes[selectionBoxID].geometryIndex).y,
+		m_quads.GetVertexPos(m_selectionBoxes[selectionBoxID].geometryIndex).y,
 		pos.x + BOX_WIDTH };
-	shader.Bind();
-	shader.SetUniform4fv("u_SelectionData", &shaderUniformData.x);
+	m_shader.Bind();
+	m_shader.SetUniform4fv("u_SelectionData", &m_shaderUniformData.x);
 
 	if (Input::MouseButtonDown(0) && !Input::cursorCollisionDetected)
 	{
@@ -186,20 +159,20 @@ float GetWidth()
 const glm::vec2& Glim::SelectionBox::GetLastSelectionPosition(Corner corner)
 {
 	if (corner == Corner::BottomRight || corner == Corner::TopRight)
-		lastSelectionPos.x += BOX_WIDTH;
+		m_lastSelectionPos.x += BOX_WIDTH;
 	if (corner == Corner::BottomRight || corner == Corner::BottomLeft)
-		lastSelectionPos.y += OPTION_HEIGHT;
-	return lastSelectionPos;
+		m_lastSelectionPos.y += OPTION_HEIGHT;
+	return m_lastSelectionPos;
 }
 
 void Glim::SelectionBox::Delete(int selectionBoxID)
 {
 	// hide box and decrement counter
-	quads.UpdateQuadColor(selectionBoxes[selectionBoxID].geometryIndex, { 0.0f, 0.0f, 0.0f, 0.0f });
-	currentOnScreenBoxCount--;
+	m_quads.UpdateQuadColor(m_selectionBoxes[selectionBoxID].geometryIndex, { 0.0f, 0.0f, 0.0f, 0.0f });
+	m_currentOnScreenBoxCount--;
 }
 
 void Glim::SelectionBox::FrameEnd()
 {
-	evaluationHandled = false;
+	m_evaluationHandled = false;
 }
