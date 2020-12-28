@@ -29,6 +29,8 @@ namespace Glim {
 		Geometry m_quads;
 		IconSource m_iconSource;
 		CircleFont m_circleFont;
+		
+		int m_currentlyInteracting = -1;
 
 		bool CollisionTest(int buttonIndex);
 

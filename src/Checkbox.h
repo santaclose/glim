@@ -23,6 +23,8 @@ namespace Glim {
 		Shader m_shader;
 		Geometry m_quads;
 
+		int m_currentlyInteracting = -1;
+
 		bool CollisionTest(int checkboxID);
 
 	public:

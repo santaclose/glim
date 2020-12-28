@@ -19,6 +19,7 @@
 Glim::SelectionBox selectionBoxes;
 Glim::FloatingButton floatingButtons;
 Glim::Slider sliders;
+Glim::Checkbox checkboxes;
 
 uint32_t windowSize[2] = { APPLICATION_WIDTH, APPLICATION_HEIGHT };
 
@@ -110,6 +111,7 @@ int main()
 	selectionBoxes.Init(windowSize);
 	floatingButtons.Init(windowSize, Glim::FloatingButton::IconSource::CircleFont, "assets/icons.cf");
 	sliders.Init(windowSize);
+	checkboxes.Init(windowSize);
 
 	int testSelectionBoxID = -1;
 	int fileSelectionBoxID = -1;
@@ -132,7 +134,7 @@ int main()
 			int selection = selectionBoxes.Evaluate(testSelectionBoxID);
 			switch (selection)
 			{
-			case selectionBoxes.Selection::None:
+			case Glim::SelectionBox::Selection::None:
 				break;
 			default:
 				std::cout << "category selection: " << selection << std::endl;
@@ -146,17 +148,34 @@ int main()
 		if (fileSelectionBoxID > -1)
 		{
 			int selection = selectionBoxes.Evaluate(fileSelectionBoxID);
-			if (selection > -2)
+			switch (selection)
 			{
+			case Glim::SelectionBox::Selection::None:
+				break;
+			case Glim::SelectionBox::Selection::Cancel:
+				selectionBoxes.Delete(fileSelectionBoxID);
+				fileSelectionBoxID = -1;
+				break;
+			default:
 				std::cout << "file menu selection: " << selection << std::endl;
 				if (selection == 4)
 					glfwSetWindowShouldClose(window, 1);
 				selectionBoxes.Delete(fileSelectionBoxID);
 				fileSelectionBoxID = -1;
+				break;
 			}
 		}
 
+		static float sliderBValue = 1.0;
+
 		// floating buttons
+		if (floatingButtons.Evaluate({ 18.0f, 18.0f }, sliderBValue * 65.0f, 1))
+		{
+			std::cout << "file button clicked\n";
+			if (fileSelectionBoxID == -1)
+				fileSelectionBoxID = selectionBoxes.Create(
+					&fileSelectionBoxOptions, { 18.0f + 65.0f / 2.0f, 18.0f + 65.0f / 2.0f });
+		}
 		if (floatingButtons.Evaluate({ windowSize[0] - 18.0f - 65.0f, windowSize[1] - 18.0f - 65.0f }, 65.0f, 0))
 		{
 			std::cout << "hierarchy button clicked\n";
@@ -164,15 +183,14 @@ int main()
 				testSelectionBoxID = selectionBoxes.Create(
 					&categoryOptions, { windowSize[0] - 18.0f - 65.0f / 2.0f, windowSize[1] - 18.0f - 65.0f / 2.0f }, Glim::Corner::BottomRight);
 		}
-		if (floatingButtons.Evaluate({ 18.0f, 18.0f }, 65.0f, 1))
-		{
-			std::cout << "file button clicked\n";
-			if (fileSelectionBoxID == -1)
-				fileSelectionBoxID = selectionBoxes.Create(
-					&fileSelectionBoxOptions, { 18.0f + 65.0f / 2.0f, 18.0f + 65.0f / 2.0f });
-		}
 
+		static bool lal = false, lel = true;
+		checkboxes.Evaluate({ windowSize[0] / 2.0 - 150.0f - checkboxes.GetSize(), windowSize[1] - 70.0f - checkboxes.GetSize() / 2.0f }, &lal);
+		checkboxes.Evaluate({ windowSize[0] / 2.0 - 150.0f - checkboxes.GetSize(), windowSize[1] - 120.0f - checkboxes.GetSize() / 2.0f }, &lel);
+		if (lal)
 		sliders.Evaluate({ windowSize[0] / 2.0f - 150.0f, windowSize[1] - 70.0f - sliders.GetWidth() / 2.0f }, 300, &sliderValue);
+		if (lel)
+		sliders.Evaluate({ windowSize[0] / 2.0f - 150.0f, windowSize[1] - 120.0f - sliders.GetWidth() / 2.0f }, 300, &sliderBValue);
 
 		Glim::Text::Element(
 			"The quick brown fox jumps over the lazy dog",
@@ -188,6 +206,8 @@ int main()
 		//Glim::Render();
 		sliders.BeforeDraw();
 		floatingButtons.BeforeDraw();
+		checkboxes.BeforeDraw();
+		checkboxes.FrameEnd();
 		Glim::Geometry::DrawAll();
 		Glim::Text::DrawAll();
 
@@ -197,6 +217,7 @@ int main()
 		Glim::Text::FrameEnd();
 		floatingButtons.FrameEnd();
 		selectionBoxes.FrameEnd();
+		checkboxes.FrameEnd();
 		sliders.FrameEnd();
 		glfwWaitEvents();
 	}

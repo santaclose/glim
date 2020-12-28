@@ -50,6 +50,7 @@ void Glim::Slider::Init(const uint32_t* windowSize)
 
 void Glim::Slider::Evaluate(const glm::vec2& position, float size, float* value, Orientation orientation)
 {
+	// update data
 	if (m_currentID == m_sliders.size())
 	{
 		m_sliders.emplace_back();
@@ -66,8 +67,6 @@ void Glim::Slider::Evaluate(const glm::vec2& position, float size, float* value,
 	else
 		m_quads.UpdateQuadVertexCoords(m_sliders[m_currentID].geometryIndex, m_sliders[m_currentID].pos, { QUAD_WIDTH, size });
 
-	m_quads.UpdateQuadColor(m_sliders[m_currentID].geometryIndex, COLOR);
-
 	float minPos;
 	float maxPos;
 	if (m_sliders[m_currentID].orientation == Orientation::Horizontal)
@@ -81,18 +80,49 @@ void Glim::Slider::Evaluate(const glm::vec2& position, float size, float* value,
 		maxPos = m_sliders[m_currentID].pos.y + m_sliders[m_currentID].size - HANDLE_RADIUS;
 	}
 
-	if (CollisionTest(m_currentID) && Input::MouseButtonDown(0) && !Input::cursorCollisionDetected)
+	// handle interaction
+	bool needToHighlight = false;
+	bool needToUpdateDraggingOffset = false;
+	bool cursorOver = false;
+	if (!Input::cursorCollisionDetected)
 	{
-		Input::cursorCollisionDetected = true;
+		cursorOver = CollisionTest(m_currentID);
+		if (cursorOver)
+		{
+			Input::cursorCollisionDetected = true;
+			if (Input::MouseButtonDown(0))
+			{
+				Input::currentlyHandling = this;
+				m_currentlyDraggingSlider = m_currentID;
+				needToUpdateDraggingOffset = true;
+			}
+		}
+	}
+	needToHighlight =
+		cursorOver && Input::currentlyHandling == nullptr ||
+		Input::currentlyHandling == this && m_currentlyDraggingSlider == m_currentID;
+	if (Input::MouseButtonUp(0) && Input::currentlyHandling == this && m_currentlyDraggingSlider == m_currentID)
+	{
+		Input::currentlyHandling = nullptr;
+		m_currentlyDraggingSlider = -1;
+	}
 
-		m_currentlyDraggingSlider = m_currentID;
-
+	// update data
+	if (needToHighlight)
+	{
+		glm::vec4 highlightedButtonColor = COLOR;
+		highlightedButtonColor += glm::vec4(0.1f, 0.1f, 0.1f, 0.0f);
+		m_quads.UpdateQuadColor(m_sliders[m_currentID].geometryIndex, highlightedButtonColor);
+	}
+	else
+		m_quads.UpdateQuadColor(m_sliders[m_currentID].geometryIndex, COLOR);
+	if (needToUpdateDraggingOffset)
+	{
 		float valueFromMousePos = m_sliders[m_currentID].orientation == Orientation::Horizontal ?
 			(Input::mousePos[0] - minPos) / (maxPos - minPos) :
 			(Input::mousePos[1] - minPos) / (maxPos - minPos);
 		m_draggingOffset = *m_sliders[m_currentID].value - valueFromMousePos;
 	}
-
 	if (m_currentlyDraggingSlider == m_currentID)
 	{
 		float valueFromMousePos = m_sliders[m_currentID].orientation == Orientation::Horizontal ?
@@ -100,9 +130,6 @@ void Glim::Slider::Evaluate(const glm::vec2& position, float size, float* value,
 			(Input::mousePos[1] - minPos) / (maxPos - minPos);
 
 		*m_sliders[m_currentID].value = glm::clamp(valueFromMousePos + m_draggingOffset, 0.0f, 1.0f);
-
-		if (Input::MouseButtonUp(0))
-			m_currentlyDraggingSlider = -1;
 	}
 
 	if (orientation == Orientation::Horizontal)

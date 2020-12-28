@@ -21,7 +21,6 @@ namespace Glim {
 		};
 
 		unsigned int m_fontID;
-		bool m_evaluationHandled = false;
 		int m_currentOnScreenBoxCount = 0;
 		glm::vec2 m_lastSelectionPos = { -1, -1 };
 

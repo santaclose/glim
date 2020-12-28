@@ -105,6 +105,9 @@ int Glim::SelectionBox::Create(const std::vector<std::string>* options, const gl
 
 int Glim::SelectionBox::Evaluate(int selectionBoxID)
 {
+	int returnValue = (int)Selection::None;
+
+	// update data
 	glm::vec2 pos = m_selectionBoxes[selectionBoxID].pos;
 	glm::vec2 quadSize = { BOX_WIDTH, OPTION_HEIGHT * m_selectionBoxes[selectionBoxID].options->size() + CORNER_RADIUS * 2.0f };
 	if (m_selectionBoxes[selectionBoxID].cornerAtPos == Corner::BottomRight ||
@@ -122,16 +125,27 @@ int Glim::SelectionBox::Evaluate(int selectionBoxID)
 			TEXT_SIZE, m_fontID, 0xffffffff, Glim::Alignment::Center);
 	}
 
-	if (m_evaluationHandled)
-		return Selection::None;
+	// handle interaction
+	int collisionResult;
+	if (!Input::cursorCollisionDetected)
+	{
+		collisionResult = CollisionTest(selectionBoxID);
+		Input::cursorCollisionDetected = true;
+		if (Input::MouseButtonDown(0))
+			Input::currentlyHandling = this;
+		if (Input::MouseButtonUp(0) && Input::currentlyHandling == this)
+		{
+			returnValue = collisionResult;
+			Input::currentlyHandling = nullptr;
+		}
+	}
 
-	int collisionResult = CollisionTest(selectionBoxID);
-	m_evaluationHandled = collisionResult > -1;
-
-	if (m_evaluationHandled)
+	// update data
+	if (collisionResult > -1)
 		m_lastSelectionPos = { pos.x, pos.y + CORNER_RADIUS * 2 + OPTION_HEIGHT * (collisionResult) };
 	else
 		m_lastSelectionPos = { -1, -1 };
+
 
 	m_shaderUniformData = {
 		(float) collisionResult,
@@ -141,14 +155,7 @@ int Glim::SelectionBox::Evaluate(int selectionBoxID)
 	m_shader.Bind();
 	m_shader.SetUniform4fv("u_SelectionData", &m_shaderUniformData.x);
 
-	if (Input::MouseButtonDown(0) && !Input::cursorCollisionDetected)
-	{
-		Input::cursorCollisionDetected = true;
-		return collisionResult;
-	}
-
-	// user has not made a selection
-	return Selection::None;
+	return returnValue;
 }
 
 float GetWidth()
@@ -174,5 +181,4 @@ void Glim::SelectionBox::Delete(int selectionBoxID)
 
 void Glim::SelectionBox::FrameEnd()
 {
-	m_evaluationHandled = false;
 }

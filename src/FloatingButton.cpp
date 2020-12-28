@@ -31,6 +31,8 @@ void Glim::FloatingButton::Init(const uint32_t* windowSize, IconSource iconSourc
 
 bool Glim::FloatingButton::Evaluate(const glm::vec2& position, float size, int iconID)
 {
+	bool returnValue = false;
+
 	// add new button if necessary
 	if (m_currentID == m_buttons.size())
 	{
@@ -52,27 +54,53 @@ bool Glim::FloatingButton::Evaluate(const glm::vec2& position, float size, int i
 	}
 
 	m_quads.UpdateQuadVertexCoords(m_buttons[m_currentID].geometryIndex, m_buttons[m_currentID].pos, { size, size });
+	m_quads.UpdateQuadData(m_buttons[m_currentID].geometryIndex,
+		{ m_buttons[m_currentID].pos.x, m_buttons[m_currentID].pos.y, m_buttons[m_currentID].size, 0.0f });
 
-	bool cursorOver = CollisionTest(m_currentID);
-	if (cursorOver)
+	// handle interaction
+	bool cursorOver = false;
+	bool needToHighlight = false;
+	if (!Input::cursorCollisionDetected)
+	{
+		cursorOver = CollisionTest(m_currentID);
+		if (cursorOver)
+		{
+			needToHighlight = true;
+			Input::cursorCollisionDetected = true;
+			if (Input::MouseButtonDown(0))
+			{
+				Input::currentlyHandling = this;
+				m_currentlyInteracting = m_currentID;
+			}
+		}
+	}
+
+	needToHighlight =
+		cursorOver && Input::currentlyHandling == nullptr ||
+		Input::currentlyHandling == this && m_currentlyInteracting == m_currentID;
+
+	if (Input::MouseButtonUp(0) && Input::currentlyHandling == this && m_currentlyInteracting == m_currentID)
+	{
+		Input::currentlyHandling = nullptr;
+		m_currentlyInteracting = -1;
+		if (cursorOver)
+			returnValue = true;
+	}
+
+	// update data
+	if (needToHighlight)
 	{
 		glm::vec4 highlightedButtonColor = COLOR;
 		highlightedButtonColor += glm::vec4(0.1f, 0.1f, 0.1f, 0.0f);
 		m_quads.UpdateQuadColor(m_buttons[m_currentID].geometryIndex, highlightedButtonColor);
 	}
 	else
+	{
 		m_quads.UpdateQuadColor(m_buttons[m_currentID].geometryIndex, COLOR);
-
-	m_quads.UpdateQuadData(m_buttons[m_currentID].geometryIndex,
-		{ m_buttons[m_currentID].pos.x, m_buttons[m_currentID].pos.y, m_buttons[m_currentID].size, 0.0f });
+	}
 
 	m_currentID++;
-	if (cursorOver && Input::MouseButtonDown(0) && !Input::cursorCollisionDetected)
-	{
-		Input::cursorCollisionDetected = true;
-		return true;
-	}
-	return false;
+	return returnValue;
 }
 
 void Glim::FloatingButton::FrameBegin()

@@ -2,10 +2,10 @@
 
 namespace Glim::Input {
 
-
-	extern bool cursorCollisionDetected;
 	extern bool mouseButtons[3];
 	extern float mousePos[2];
+	extern bool cursorCollisionDetected;
+	extern void* currentlyHandling;
 
 	void UpdateMouseButtons(int button, int action);
 	void UpdateMousePosition(double xpos, double ypos);
