@@ -29,12 +29,7 @@ namespace Glim::FloatingButton {
 	IconSource iconSource;
 	CircleFont circleFont;
 
-	// area used to highlight buttons
-	glm::vec3 highlightCircle = { -1.0f, -1.0f, 0.0f };
-
 	bool CollisionTest(int buttonIndex);
-
-	bool thereWasACollision = false;
 }
 
 bool Glim::FloatingButton::CollisionTest(int buttonIndex)
@@ -56,12 +51,12 @@ void Glim::FloatingButton::Init(const uint32_t* windowSize, IconSource iconSourc
 	shader.CreateFromFiles("assets/shaders/vert.glsl", "assets/shaders/floatingButton.glsl");
 	shader.Bind();
 	shader.SetUniform1f("u_Margin", BUTTON_QUAD_MARGIN);
-	shader.SetUniform3fv("u_HighlightCircle", &highlightCircle.x);
 	quads.CreateFromShader(&shader);
 }
 
 bool Glim::FloatingButton::Evaluate(const glm::vec2& position, float size, int iconID)
 {
+	// add new button if necessary
 	if (currentButtonID == buttons.size())
 	{
 		buttons.emplace_back();
@@ -70,6 +65,7 @@ bool Glim::FloatingButton::Evaluate(const glm::vec2& position, float size, int i
 			buttons.back().iconIndex = circleFont.Add(0, position, size, ICON_COLOR);
 	}
 
+	// update data
 	buttons[currentButtonID].pos = position;
 	buttons[currentButtonID].size = size;
 	if (iconSource == IconSource::CircleFont)
@@ -81,26 +77,22 @@ bool Glim::FloatingButton::Evaluate(const glm::vec2& position, float size, int i
 	}
 
 	quads.UpdateQuadVertexCoords(buttons[currentButtonID].geometryIndex, buttons[currentButtonID].pos, { size, size });
-	quads.UpdateQuadColor(buttons[currentButtonID].geometryIndex, COLOR);
 
-	bool collided = CollisionTest(currentButtonID);
-	if (collided)
+	bool cursorOver = CollisionTest(currentButtonID);
+	if (cursorOver)
 	{
-		highlightCircle = {
-			buttons[currentButtonID].pos.x + buttons[currentButtonID].size / 2.0f,
-			buttons[currentButtonID].pos.y + buttons[currentButtonID].size / 2.0f,
-			buttons[currentButtonID].size / 2.0f,
-		};
-		shader.Bind();
-		shader.SetUniform3fv("u_HighlightCircle", &highlightCircle.x);
-		thereWasACollision = true;
+		glm::vec4 highlightedButtonColor = COLOR;
+		highlightedButtonColor += glm::vec4(0.1f, 0.1f, 0.1f, 0.0f);
+		quads.UpdateQuadColor(buttons[currentButtonID].geometryIndex, highlightedButtonColor);
 	}
+	else
+		quads.UpdateQuadColor(buttons[currentButtonID].geometryIndex, COLOR);
 
 	quads.UpdateQuadData(buttons[currentButtonID].geometryIndex,
 		{ buttons[currentButtonID].pos.x, buttons[currentButtonID].pos.y, buttons[currentButtonID].size, 0.0f });
 
 	currentButtonID++;
-	if (collided && Input::MouseButtonDown(0) && !Input::cursorCollisionDetected)
+	if (cursorOver && Input::MouseButtonDown(0) && !Input::cursorCollisionDetected)
 	{
 		Input::cursorCollisionDetected = true;
 		return true;
@@ -110,13 +102,6 @@ bool Glim::FloatingButton::Evaluate(const glm::vec2& position, float size, int i
 
 void Glim::FloatingButton::FrameBegin()
 {
-	if (!thereWasACollision)
-	{
-		highlightCircle = { -1.0f, -1.0f, 0.0f };
-		shader.Bind();
-		shader.SetUniform3fv("u_HighlightCircle", &highlightCircle.x);
-	}
-	thereWasACollision = false;
 }
 
 void Glim::FloatingButton::BeforeDraw()

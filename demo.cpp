@@ -28,7 +28,6 @@ const std::vector<std::string> fileSelectionBoxOptions =
 { "Open", "Save", "Import", "Export", "Exit", "Preferences" };
 
 float sliderValue = 0.5;
-bool checkboxValue = true;
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
@@ -190,10 +189,6 @@ int main()
 					&fileSelectionBoxOptions, { 18.0f + 65.0f / 2.0f, 18.0f + 65.0f / 2.0f });
 		}
 
-		Glim::Checkbox::Evaluate({ windowSize[0] / 2.0f - 150.0f - Glim::Checkbox::GetSize(), windowSize[1] - 70.0f - Glim::Checkbox::GetSize() / 2.0f }, &checkboxValue);
-		if (checkboxValue)
-			sliderValue = sin(glfwGetTime()) * 0.5f + 0.5f;
-
 		Glim::Slider::Evaluate({ windowSize[0] / 2.0f - 150.0f, windowSize[1] - 70.0f - Glim::Slider::GetWidth() / 2.0f }, 300, &sliderValue);
 
 		Glim::Text::Element(
@@ -222,7 +217,7 @@ int main()
 		Glim::SelectionBox::FrameEnd();
 		Glim::Slider::FrameEnd();
 		Glim::Checkbox::FrameEnd();
-		//glfwWaitEvents();
+		glfwWaitEvents();
 	}
 
 	//Glim::Terminate();
