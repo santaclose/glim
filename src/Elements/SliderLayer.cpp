@@ -1,5 +1,5 @@
-#include "Slider.h"
-#include "Input.h"
+#include "SliderLayer.h"
+#include "../Input.h"
 #include <iostream>
 
 #define SIDE_MARGIN 1.0f
@@ -10,7 +10,7 @@
 #define COLOR { 0.35f, 0.35f, 0.35f, 0.9f }
 
 
-bool Glim::Slider::CollisionTest(int sliderID)
+bool Glim::SliderLayer::CollisionTest(int sliderID)
 {
 	glm::vec2 circleCenter;
 	if (m_sliders[sliderID].orientation == Orientation::Horizontal)
@@ -35,7 +35,7 @@ bool Glim::Slider::CollisionTest(int sliderID)
 	}
 }
 
-void Glim::Slider::Init(const uint32_t* windowSize)
+void Glim::SliderLayer::Init(const uint32_t* windowSize)
 {
 	m_windowSize = windowSize;
 
@@ -48,7 +48,7 @@ void Glim::Slider::Init(const uint32_t* windowSize)
 	m_quads.Init(&m_shader);
 }
 
-void Glim::Slider::Evaluate(const glm::vec2& position, float size, float* value, Orientation orientation)
+void Glim::SliderLayer::Evaluate(const glm::vec2& position, float size, float* value, Orientation orientation)
 {
 	// update data
 	if (m_currentID == m_sliders.size())
@@ -147,12 +147,12 @@ void Glim::Slider::Evaluate(const glm::vec2& position, float size, float* value,
 	return;
 }
 
-float Glim::Slider::GetWidth()
+float Glim::SliderLayer::GetWidth()
 {
 	return QUAD_WIDTH;
 }
 
-void Glim::Slider::BeforeDraw()
+void Glim::SliderLayer::BeforeDraw()
 {
 	// hide all the unused m_sliders
 	while (m_currentID < m_sliders.size())
@@ -162,7 +162,7 @@ void Glim::Slider::BeforeDraw()
 	}
 }
 
-void Glim::Slider::FrameEnd()
+void Glim::SliderLayer::FrameEnd()
 {
 	m_currentID = 0;
 }

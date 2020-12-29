@@ -1,5 +1,5 @@
-#include "Checkbox.h"
-#include "Input.h"
+#include "CheckboxLayer.h"
+#include "../Input.h"
 
 #define MARGIN 1.0f
 #define CORNER_RADIUS 3.0f
@@ -8,7 +8,7 @@
 #define QUAD_SIZE 18.0f
 
 
-bool Glim::Checkbox::CollisionTest(int checkboxID)
+bool Glim::CheckboxLayer::CollisionTest(int checkboxID)
 {
 	return
 		Input::mousePos[0] > m_checkboxes[checkboxID].pos.x &&
@@ -18,7 +18,7 @@ bool Glim::Checkbox::CollisionTest(int checkboxID)
 
 }
 
-void Glim::Checkbox::Init(const uint32_t* windowSize)
+void Glim::CheckboxLayer::Init(const uint32_t* windowSize)
 {
 	m_windowSize = windowSize;
 
@@ -31,7 +31,7 @@ void Glim::Checkbox::Init(const uint32_t* windowSize)
 	m_quads.Init(&m_shader);
 }
 
-void Glim::Checkbox::Evaluate(const glm::vec2& position, bool* value)
+void Glim::CheckboxLayer::Evaluate(const glm::vec2& position, bool* value)
 {
 	// add a new one if necessary
 	if (m_currentID == m_checkboxes.size())
@@ -94,12 +94,12 @@ void Glim::Checkbox::Evaluate(const glm::vec2& position, bool* value)
 	m_currentID++;
 }
 
-float Glim::Checkbox::GetSize()
+float Glim::CheckboxLayer::GetSize()
 {
 	return QUAD_SIZE;
 }
 
-void Glim::Checkbox::BeforeDraw()
+void Glim::CheckboxLayer::BeforeDraw()
 {
 	while (m_currentID < m_checkboxes.size())
 	{
@@ -108,7 +108,7 @@ void Glim::Checkbox::BeforeDraw()
 	}
 }
 
-void Glim::Checkbox::FrameEnd()
+void Glim::CheckboxLayer::FrameEnd()
 {
 	m_currentID = 0;
 }

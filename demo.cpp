@@ -6,22 +6,22 @@
 #include "Input.h"
 #include "Shader.h"
 #include "Geometry.h"
-#include "Text.h"
-#include "FloatingButton.h"
-#include "SelectionBox.h"
-#include "Slider.h"
-#include "Checkbox.h"
+#include "TextLayer.h"
 #include "CircleFont.h"
 #include "LayerRenderer.h"
+#include "Elements/ButtonLayer.h"
+#include "Elements/SelectionBox.h"
+#include "Elements/SliderLayer.h"
+#include "Elements/CheckboxLayer.h"
 
 #define APPLICATION_WIDTH 1280
 #define APPLICATION_HEIGHT 720
 
 Glim::SelectionBox selectionBoxes;
-Glim::FloatingButton floatingButtons;
-Glim::Slider sliders;
-Glim::Checkbox checkboxes;
-Glim::Text sampleText;
+Glim::ButtonLayer floatingButtons;
+Glim::SliderLayer sliders;
+Glim::CheckboxLayer checkboxes;
+Glim::TextLayer sampleText;
 
 uint32_t windowSize[2] = { APPLICATION_WIDTH, APPLICATION_HEIGHT };
 
@@ -43,7 +43,7 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 	glViewport(0, 0, width, height);
 
 	Glim::Shader::UpdateMatrix(windowSize);
-	Glim::Text::OnResize();
+	Glim::TextLayer::OnResize();
 }
 
 void cursor_position_callback(GLFWwindow* window, double xpos, double ypos)
@@ -107,7 +107,7 @@ int main()
 	// Glim::Init();
 
 	selectionBoxes.Init(windowSize);
-	floatingButtons.Init(windowSize, Glim::FloatingButton::IconSource::CircleFont, "assets/icons.cf");
+	floatingButtons.Init(windowSize, Glim::ButtonLayer::IconSource::CircleFont, "assets/icons.cf");
 	sliders.Init(windowSize);
 	checkboxes.Init(windowSize);
 	sampleText.Init(windowSize);

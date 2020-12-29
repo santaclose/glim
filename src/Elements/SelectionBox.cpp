@@ -1,5 +1,5 @@
 #include "SelectionBox.h"
-#include "Input.h"
+#include "../Input.h"
 
 #include <iostream>
 
@@ -34,7 +34,7 @@ void Glim::SelectionBox::Init(const uint32_t* windowSize)
 	m_windowSize = windowSize;
 
 	m_textLayer.Init(windowSize);
-	m_fontID = m_textLayer.CreateFontFromFile("assets/fonts/Open_Sans/OpenSans-Regular.ttf");
+	m_fontID = m_textLayer.CreateFontFromFile("assets/fonts/Open_Sans/OpenSans-SemiBold.ttf");
 
 	m_shader.CreateFromFiles("assets/shaders/vert.glsl", "assets/shaders/selectionBox.glsl");
 	m_shader.Bind();

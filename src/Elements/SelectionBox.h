@@ -3,9 +3,9 @@
 #include <vector>
 #include <string>
 #include <glm/glm.hpp>
-#include "Enums.h"
-#include "Geometry.h"
-#include "Text.h"
+#include "../Enums.h"
+#include "../Geometry.h"
+#include "TextLayer.h"
 
 namespace Glim {
 	class SelectionBox {
@@ -28,7 +28,7 @@ namespace Glim {
 		const uint32_t* m_windowSize;
 		Geometry m_quads; // one quad for each selection box displayed at the same time
 		Shader m_shader;
-		Text m_textLayer;
+		TextLayer m_textLayer;
 
 		glm::vec4 m_shaderUniformData = { -1.0f, 0.0f, 0.0f, 0.0f };
 

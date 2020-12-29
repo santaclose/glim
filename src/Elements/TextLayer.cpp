@@ -1,4 +1,4 @@
-#include "Text.h"
+#include "TextLayer.h"
 
 #include <iostream>
 #include <glm/gtc/matrix_transform.hpp>
@@ -6,15 +6,15 @@
 
 namespace Glim {
 
-	std::vector<Text*> Text::instances;
+	std::vector<TextLayer*> TextLayer::instances;
 }
 
-void Glim::Text::ComputeMatrix()
+void Glim::TextLayer::ComputeMatrix()
 {
 	_msdfgl_ortho(0.0, (float)m_windowSize[0], (float)m_windowSize[1], 0.0, -1.0, 1.0, m_projection);
 }
 
-void Glim::Text::Init(const uint32_t* windowSize)
+void Glim::TextLayer::Init(const uint32_t* windowSize)
 {
 	m_windowSize = windowSize;
 	m_context = msdfgl_create_context("460 core");
@@ -30,7 +30,7 @@ void Glim::Text::Init(const uint32_t* windowSize)
 	instances.push_back(this);
 }
 
-unsigned int Glim::Text::CreateFontFromFile(const std::string& filePath)
+unsigned int Glim::TextLayer::CreateFontFromFile(const std::string& filePath)
 {
 	m_fonts.emplace_back();
 	m_fonts.back() = msdfgl_load_font(m_context, filePath.c_str(),
@@ -43,13 +43,13 @@ unsigned int Glim::Text::CreateFontFromFile(const std::string& filePath)
 	return m_fonts.size() - 1;
 }
 
-void Glim::Text::OnResize()
+void Glim::TextLayer::OnResize()
 {
-	for (Text* t : instances)
+	for (TextLayer* t : instances)
 		t->ComputeMatrix();
 }
 
-void Glim::Text::Element(const std::string& text, const glm::vec2& pos, float size, unsigned int fontID, unsigned int color, Alignment alignment)
+void Glim::TextLayer::Element(const std::string& text, const glm::vec2& pos, float size, unsigned int fontID, unsigned int color, Alignment alignment)
 {
 	if (m_currentID == m_textElements.size())
 		m_textElements.emplace_back();
@@ -65,7 +65,7 @@ void Glim::Text::Element(const std::string& text, const glm::vec2& pos, float si
 	m_currentID++;
 }
 
-void Glim::Text::Destroy()
+void Glim::TextLayer::Destroy()
 {
 	/* Cleanup */
 	for (msdfgl_font_t& font : m_fonts)
@@ -73,7 +73,7 @@ void Glim::Text::Destroy()
 	msdfgl_destroy_context(m_context);
 }
 
-void Glim::Text::Draw()
+void Glim::TextLayer::Draw()
 {
 	for (int i = m_currentID; i < m_textElements.size(); i++)
 		m_textElements[i].enabled = false;
@@ -93,7 +93,7 @@ void Glim::Text::Draw()
 	}
 }
 
-void Glim::Text::FrameEnd()
+void Glim::TextLayer::FrameEnd()
 {
 	m_currentID = 0;
 }

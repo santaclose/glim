@@ -1,13 +1,13 @@
 #pragma once
 #include <cstdint>
 #include <glm/glm.hpp>
-#include "Enums.h"
-#include "Geometry.h"
-#include "Shader.h"
+#include "../Enums.h"
+#include "../Geometry.h"
+#include "../Shader.h"
 
 namespace Glim {
 	
-	class Slider {
+	class SliderLayer {
 	private:
 		struct SliderInfo {
 

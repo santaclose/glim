@@ -8,10 +8,10 @@
 
 namespace Glim {
 
-	class Text : public Drawable {
+	class TextLayer : public Drawable {
 
 	private:
-		static std::vector<Text*> instances;
+		static std::vector<TextLayer*> instances;
 
 		struct TextElement {
 

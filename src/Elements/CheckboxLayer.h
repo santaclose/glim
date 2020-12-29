@@ -1,12 +1,12 @@
 #pragma once
 #include <cstdint>
 #include <glm/glm.hpp>
-#include "Geometry.h"
-#include "Shader.h"
+#include "../Geometry.h"
+#include "../Shader.h"
 
 namespace Glim {
 
-	class Checkbox {
+	class CheckboxLayer {
 	private:
 		struct CheckboxInfo {
 

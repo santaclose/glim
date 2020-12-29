@@ -2,13 +2,13 @@
 #include <cstdint>
 #include <string>
 #include <glm/glm.hpp>
-#include "Geometry.h"
-#include "Shader.h"
-#include "CircleFont.h"
+#include "../Geometry.h"
+#include "../Shader.h"
+#include "../CircleFont.h"
 
 namespace Glim {
 
-	class FloatingButton {
+	class ButtonLayer {
 	public:
 		enum class IconSource { None = 0, CircleFont = 1 };
 

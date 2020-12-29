@@ -1,5 +1,5 @@
-#include "FloatingButton.h"
-#include "Input.h"
+#include "../Input.h"
+#include "ButtonLayer.h"
 #include <iostream>
 #include <vector>
 
@@ -7,7 +7,7 @@
 #define COLOR { 0.35f, 0.35f, 0.35f, 0.9f }
 #define ICON_COLOR { 1.0f, 1.0f, 1.0f, 1.0f }
 
-bool Glim::FloatingButton::CollisionTest(int buttonIndex)
+bool Glim::ButtonLayer::CollisionTest(int buttonIndex)
 {
 	return glm::distance(
 		{ Glim::Input::mousePos[0], Glim::Input::mousePos[1] },
@@ -15,7 +15,7 @@ bool Glim::FloatingButton::CollisionTest(int buttonIndex)
 		< m_buttons[buttonIndex].size / 2.0f - BUTTON_QUAD_MARGIN / 2.0f;
 }
 
-void Glim::FloatingButton::Init(const uint32_t* windowSize, IconSource iconSource, const std::string& iconsPath)
+void Glim::ButtonLayer::Init(const uint32_t* windowSize, IconSource iconSource, const std::string& iconsPath)
 {
 	if (iconSource == IconSource::CircleFont)
 		m_circleFont.CreateFromFile(iconsPath);
@@ -29,7 +29,7 @@ void Glim::FloatingButton::Init(const uint32_t* windowSize, IconSource iconSourc
 	m_quads.Init(&m_shader);
 }
 
-bool Glim::FloatingButton::Evaluate(const glm::vec2& position, float size, int iconID)
+bool Glim::ButtonLayer::Evaluate(const glm::vec2& position, float size, int iconID)
 {
 	bool returnValue = false;
 
@@ -103,11 +103,11 @@ bool Glim::FloatingButton::Evaluate(const glm::vec2& position, float size, int i
 	return returnValue;
 }
 
-void Glim::FloatingButton::FrameBegin()
+void Glim::ButtonLayer::FrameBegin()
 {
 }
 
-void Glim::FloatingButton::BeforeDraw()
+void Glim::ButtonLayer::BeforeDraw()
 {
 	// hide all unused quads
 	while (m_currentID < m_buttons.size())
@@ -118,7 +118,7 @@ void Glim::FloatingButton::BeforeDraw()
 	}
 }
 
-void Glim::FloatingButton::FrameEnd()
+void Glim::ButtonLayer::FrameEnd()
 {
 	m_currentID = 0;
 }
