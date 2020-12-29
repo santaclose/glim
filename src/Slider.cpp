@@ -45,7 +45,7 @@ void Glim::Slider::Init(const uint32_t* windowSize)
 	m_shader.SetUniform1f("u_RailThickness", RAIL_THICKNESS);
 	m_shader.SetUniform1f("u_SideMargin", SIDE_MARGIN);
 
-	m_quads.CreateFromShader(&m_shader);
+	m_quads.Init(&m_shader);
 }
 
 void Glim::Slider::Evaluate(const glm::vec2& position, float size, float* value, Orientation orientation)

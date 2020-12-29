@@ -87,7 +87,7 @@ void Glim::CircleFont::CreateFromFile(const std::string& filePath)
 	m_shader.SetUniform1fv("u_GroupData", &(m_GroupData[0]), m_GroupData.size());
 	m_shader.SetUniform1i("u_GroupCount", m_groupCount);
 	m_shader.SetUniform1i("u_CirclesPerGroup", m_circlesPerGroup);
-	m_quads.CreateFromShader(&m_shader);
+	m_quads.Init(&m_shader);
 }
 
 unsigned int Glim::CircleFont::Add(unsigned int glyphID, const glm::vec2& position, float size, const glm::vec4& color)

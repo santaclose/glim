@@ -4,14 +4,11 @@
 #include <glm/glm.hpp>
 #include "Vertex.h"
 #include "Shader.h"
+#include "Drawable.h"
 
 namespace Glim {
 
-	class Geometry {
-	public:
-		static void Init(const uint32_t* windowSize);
-	private:
-		static const uint32_t* windowSize;
+	class Geometry : public Drawable {
 
 	private:
 		const Shader* m_shader;
@@ -24,10 +21,8 @@ namespace Glim {
 		std::vector<unsigned int> m_indexVector;
 		bool m_vertexDataHasChanged = false;
 
-		static std::vector<Geometry*> instances;
-
 	public:
-		void CreateFromShader(const Shader* shader);
+		void Init(const Shader* shader);
 		unsigned int CreateQuad();
 		unsigned int CreateQuad(
 			const glm::vec2& pos,
@@ -51,7 +46,5 @@ namespace Glim {
 		const glm::vec2& GetVertexPos(unsigned int index);
 
 		void Draw();
-
-		static void DrawAll();
 	};
 }

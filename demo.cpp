@@ -12,6 +12,7 @@
 #include "Slider.h"
 #include "Checkbox.h"
 #include "CircleFont.h"
+#include "LayerRenderer.h"
 
 #define APPLICATION_WIDTH 1280
 #define APPLICATION_HEIGHT 720
@@ -20,6 +21,7 @@ Glim::SelectionBox selectionBoxes;
 Glim::FloatingButton floatingButtons;
 Glim::Slider sliders;
 Glim::Checkbox checkboxes;
+Glim::Text sampleText;
 
 uint32_t windowSize[2] = { APPLICATION_WIDTH, APPLICATION_HEIGHT };
 
@@ -104,14 +106,12 @@ int main()
 
 	// Glim::Init();
 
-	Glim::Geometry::Init(windowSize);
-	Glim::Text::Init(windowSize);
-	Glim::Text::CreateFontFromFile("assets/fonts/FiraCode/FiraCode-Regular.ttf");
-
 	selectionBoxes.Init(windowSize);
 	floatingButtons.Init(windowSize, Glim::FloatingButton::IconSource::CircleFont, "assets/icons.cf");
 	sliders.Init(windowSize);
 	checkboxes.Init(windowSize);
+	sampleText.Init(windowSize);
+	sampleText.CreateFontFromFile("assets/fonts/FiraCode/FiraCode-Regular.ttf");
 
 	int testSelectionBoxID = -1;
 	int fileSelectionBoxID = -1;
@@ -166,10 +166,8 @@ int main()
 			}
 		}
 
-		static float sliderBValue = 1.0;
-
 		// floating buttons
-		if (floatingButtons.Evaluate({ 18.0f, 18.0f }, sliderBValue * 65.0f, 1))
+		if (floatingButtons.Evaluate({ 18.0f, 18.0f }, 65.0f, 1))
 		{
 			std::cout << "file button clicked\n";
 			if (fileSelectionBoxID == -1)
@@ -184,15 +182,9 @@ int main()
 					&categoryOptions, { windowSize[0] - 18.0f - 65.0f / 2.0f, windowSize[1] - 18.0f - 65.0f / 2.0f }, Glim::Corner::BottomRight);
 		}
 
-		static bool lal = false, lel = true;
-		checkboxes.Evaluate({ windowSize[0] / 2.0 - 150.0f - checkboxes.GetSize(), windowSize[1] - 70.0f - checkboxes.GetSize() / 2.0f }, &lal);
-		checkboxes.Evaluate({ windowSize[0] / 2.0 - 150.0f - checkboxes.GetSize(), windowSize[1] - 120.0f - checkboxes.GetSize() / 2.0f }, &lel);
-		if (lal)
 		sliders.Evaluate({ windowSize[0] / 2.0f - 150.0f, windowSize[1] - 70.0f - sliders.GetWidth() / 2.0f }, 300, &sliderValue);
-		if (lel)
-		sliders.Evaluate({ windowSize[0] / 2.0f - 150.0f, windowSize[1] - 120.0f - sliders.GetWidth() / 2.0f }, 300, &sliderBValue);
 
-		Glim::Text::Element(
+		sampleText.Element(
 			"The quick brown fox jumps over the lazy dog",
 			{ windowSize[0] / 2.0f ,  windowSize[1] / 2.0f },
 			sliderValue * 500.0f + 5.0f,
@@ -208,13 +200,12 @@ int main()
 		floatingButtons.BeforeDraw();
 		checkboxes.BeforeDraw();
 		checkboxes.FrameEnd();
-		Glim::Geometry::DrawAll();
-		Glim::Text::DrawAll();
+		Glim::LayerRenderer::Render();
 
 		glfwSwapBuffers(window);
 
 		Glim::Input::FrameEnd();
-		Glim::Text::FrameEnd();
+		sampleText.FrameEnd();
 		floatingButtons.FrameEnd();
 		selectionBoxes.FrameEnd();
 		checkboxes.FrameEnd();
@@ -223,7 +214,7 @@ int main()
 	}
 
 	//Glim::Terminate();
-	Glim::Text::Destroy();
+	sampleText.Destroy();
 	glfwTerminate();
 	return 0;
 }

@@ -26,7 +26,7 @@ void Glim::FloatingButton::Init(const uint32_t* windowSize, IconSource iconSourc
 	m_shader.CreateFromFiles("assets/shaders/vert.glsl", "assets/shaders/floatingButton.glsl");
 	m_shader.Bind();
 	m_shader.SetUniform1f("u_Margin", BUTTON_QUAD_MARGIN);
-	m_quads.CreateFromShader(&m_shader);
+	m_quads.Init(&m_shader);
 }
 
 bool Glim::FloatingButton::Evaluate(const glm::vec2& position, float size, int iconID)

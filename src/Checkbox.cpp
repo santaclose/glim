@@ -28,7 +28,7 @@ void Glim::Checkbox::Init(const uint32_t* windowSize)
 	m_shader.SetUniform1f("u_CornerRadius", CORNER_RADIUS);
 	m_shader.SetUniform1f("u_Thickness", THICKNESS);
 
-	m_quads.CreateFromShader(&m_shader);
+	m_quads.Init(&m_shader);
 }
 
 void Glim::Checkbox::Evaluate(const glm::vec2& position, bool* value)

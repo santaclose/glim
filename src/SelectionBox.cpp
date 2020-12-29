@@ -1,6 +1,5 @@
 #include "SelectionBox.h"
 #include "Input.h"
-#include "Text.h"
 
 #include <iostream>
 
@@ -34,14 +33,15 @@ void Glim::SelectionBox::Init(const uint32_t* windowSize)
 {
 	m_windowSize = windowSize;
 
+	m_textLayer.Init(windowSize);
+	m_fontID = m_textLayer.CreateFontFromFile("assets/fonts/Open_Sans/OpenSans-Regular.ttf");
+
 	m_shader.CreateFromFiles("assets/shaders/vert.glsl", "assets/shaders/selectionBox.glsl");
 	m_shader.Bind();
 	m_shader.SetUniform1f("u_Radius", CORNER_RADIUS);
 	m_shader.SetUniform1f("u_OptionHeight", OPTION_HEIGHT);
 	m_shader.SetUniform4fv("u_SelectionData", &m_shaderUniformData.x);
-	m_quads.CreateFromShader(&m_shader);
-
-	m_fontID = Glim::Text::CreateFontFromFile("assets/fonts/Open_Sans/OpenSans-Regular.ttf");
+	m_quads.Init(&m_shader);
 }
 
 void Glim::SelectionBox::OnResize()
@@ -119,7 +119,7 @@ int Glim::SelectionBox::Evaluate(int selectionBoxID)
 
 	for (int i = 0; i < m_selectionBoxes[selectionBoxID].options->size(); i++)
 	{
-		Text::Element(
+		m_textLayer.Element(
 			(*(m_selectionBoxes[selectionBoxID].options))[i],
 			{ pos.x + BOX_WIDTH / 2.0f, pos.y + CORNER_RADIUS + OPTION_HEIGHT * (i + 1) - TEXT_Y_OFFSET },
 			TEXT_SIZE, m_fontID, 0xffffffff, Glim::Alignment::Center);
@@ -181,4 +181,5 @@ void Glim::SelectionBox::Delete(int selectionBoxID)
 
 void Glim::SelectionBox::FrameEnd()
 {
+	m_textLayer.FrameEnd();
 }

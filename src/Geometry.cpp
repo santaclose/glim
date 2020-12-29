@@ -2,18 +2,11 @@
 #include <glad/glad.h>
 #include <iostream>
 #include "Input.h"
+#include "LayerRenderer.h"
 
 namespace Glim {
 
-	std::vector<Geometry*> Geometry::instances;
-	const uint32_t* Geometry::windowSize;
-
-	void Geometry::Init(const uint32_t* windowSize)
-	{
-		Geometry::windowSize = windowSize;
-	}
-
-	void Geometry::CreateFromShader(const Shader* shader)
+	void Geometry::Init(const Shader* shader)
 	{
 		m_shader = shader;
 
@@ -35,7 +28,7 @@ namespace Glim {
 
 		glBindVertexArray(0);
 
-		instances.push_back(this);
+		LayerRenderer::PushLayer(this);
 	}
 
 	unsigned int Geometry::CreateQuad()
@@ -166,12 +159,6 @@ namespace Glim {
 	const glm::vec2& Geometry::GetVertexPos(unsigned int index)
 	{
 		return m_vertexVector[index].pos;
-	}
-
-	void Geometry::DrawAll()
-	{
-		for (int i = instances.size() - 1; i > -1; i--)
-			instances[i]->Draw();
 	}
 
 	void Geometry::Draw()
