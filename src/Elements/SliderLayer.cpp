@@ -89,12 +89,15 @@ void Glim::SliderLayer::Evaluate(const glm::vec2& position, float size, float* v
 		cursorOver = CollisionTest(m_currentID);
 		if (cursorOver)
 		{
-			Input::cursorCollisionDetected = true;
-			if (Input::MouseButtonDown(0))
+			if (Input::currentlyHandling == nullptr)
 			{
-				Input::currentlyHandling = this;
-				m_currentlyDraggingSlider = m_currentID;
-				needToUpdateDraggingOffset = true;
+				Input::cursorCollisionDetected = true;
+				if (Input::MouseButtonDown(0))
+				{
+					Input::currentlyHandling = this;
+					m_currentlyDraggingSlider = m_currentID;
+					needToUpdateDraggingOffset = true;
+				}
 			}
 		}
 	}
@@ -144,7 +147,6 @@ void Glim::SliderLayer::Evaluate(const glm::vec2& position, float size, float* v
 			{ *m_sliders[m_currentID].value, 1.0f, 0.0f, 0.0f });
 
 	m_currentID++;
-	return;
 }
 
 float Glim::SliderLayer::GetWidth()

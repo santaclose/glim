@@ -120,7 +120,7 @@ int Glim::SelectionBox::Evaluate(int selectionBoxID)
 	for (int i = 0; i < m_selectionBoxes[selectionBoxID].options->size(); i++)
 	{
 		m_textLayer.Element(
-			(*(m_selectionBoxes[selectionBoxID].options))[i],
+			(*(m_selectionBoxes[selectionBoxID].options))[i].c_str(),
 			{ pos.x + BOX_WIDTH / 2.0f, pos.y + CORNER_RADIUS + OPTION_HEIGHT * (i + 1) - TEXT_Y_OFFSET },
 			TEXT_SIZE, m_fontID, 0xffffffff, Glim::Alignment::Center);
 	}
@@ -131,7 +131,7 @@ int Glim::SelectionBox::Evaluate(int selectionBoxID)
 	{
 		collisionResult = CollisionTest(selectionBoxID);
 		Input::cursorCollisionDetected = true;
-		if (Input::MouseButtonDown(0))
+		if (Input::MouseButtonDown(0) && Input::currentlyHandling == nullptr)
 			Input::currentlyHandling = this;
 		if (Input::MouseButtonUp(0) && Input::currentlyHandling == this)
 		{

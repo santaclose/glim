@@ -7,7 +7,6 @@
 #define COLOR { 0.35f, 0.35f, 0.35f, 0.9f }
 #define QUAD_SIZE 18.0f
 
-
 bool Glim::CheckboxLayer::CollisionTest(int checkboxID)
 {
 	return
@@ -56,11 +55,14 @@ void Glim::CheckboxLayer::Evaluate(const glm::vec2& position, bool* value)
 		if (cursorOver)
 		{
 			needToHighlight = true;
-			Input::cursorCollisionDetected = true;
-			if (Input::MouseButtonDown(0))
+			if (Input::currentlyHandling == nullptr)
 			{
-				Input::currentlyHandling = this;
-				m_currentlyInteracting = m_currentID;
+				Input::cursorCollisionDetected = true;
+				if (Input::MouseButtonDown(0))
+				{
+					Input::currentlyHandling = this;
+					m_currentlyInteracting = m_currentID;
+				}
 			}
 		}
 	}
