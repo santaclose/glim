@@ -9,21 +9,21 @@ in vec4 b_MoreData;
 
 uniform float u_Margin;
 
-float fadeRange;
-
 float negativeCircle(vec2 center, float radius)
 {
-    return smoothstep(radius - fadeRange / 2.0, radius + fadeRange / 2.0, distance(b_Pos, center));
+    float dist = distance(b_Pos, center);
+    float delta = fwidth(dist);
+    return smoothstep(radius - delta / 2.0, radius + delta / 2.0, dist);
 }
 float positiveCircle(vec2 center, float radius)
 {
-    return 1.0 - smoothstep(radius - fadeRange / 2.0, radius + fadeRange / 2.0, distance(b_Pos, center));
+    float dist = distance(b_Pos, center);
+    float delta = fwidth(dist);
+    return 1.0 - smoothstep(radius - delta / 2.0, radius + delta / 2.0, dist);
 }
 
 void main()
 {
-    fadeRange = 1.2;
-
     o_Color.rgba = b_Color.rgba;
     float halfSize = b_Data.b / 2.0;
 

@@ -11,16 +11,15 @@ uniform float u_HandleRadius;
 uniform float u_RailThickness;
 uniform float u_SideMargin;
 
-float fadeRange;
-
 float positiveCircle(vec2 center, float radius)
 {
-    return 1.0 - smoothstep(radius - fadeRange / 2.0, radius + fadeRange / 2.0, distance(b_Pos, center));
+    float dist = distance(b_Pos, center);
+    float delta = fwidth(dist);
+    return 1.0 - smoothstep(radius - delta / 2.0, radius + delta / 2.0, dist);
 }
 
 void main()
 {
-    fadeRange = 1.2;
     vec2 topLeftQuadPos = b_Data.rg;
     vec2 bottomRightQuadPos = b_Data.ba;
 

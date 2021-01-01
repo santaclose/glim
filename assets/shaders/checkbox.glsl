@@ -13,89 +13,40 @@ uniform float u_Thickness;
 
 float fadeRange;
 
-float positiveRectangle(vec2 topLeftCorner, vec2 bottomRightCorner)
+float udRoundBox(vec2 p, vec2 b, float r)
 {
-    float val = 0.0;
-    val += smoothstep(topLeftCorner.x - 0.2 / 2.0, topLeftCorner.x + 0.2 / 2.0, b_Pos.x);
-    val *= smoothstep(bottomRightCorner.x + 0.2 / 2.0, bottomRightCorner.x - 0.2 / 2.0, b_Pos.x);
-    val *= smoothstep(bottomRightCorner.y + 0.2 / 2.0, bottomRightCorner.y - 0.2 / 2.0, b_Pos.y);
-    val *= smoothstep(topLeftCorner.y - 0.2 / 2.0, topLeftCorner.y + 0.2 / 2.0, b_Pos.y);
-    return val;
+    return length(max(abs(p) - b + r, 0.0)) - r;
+}
+
+float positiveRoundedRectangle(vec2 topLeftCorner, vec2 bottomRightCorner)
+{
+    vec2 rectSize = bottomRightCorner - topLeftCorner;
+    vec2 rectCenter = topLeftCorner + rectSize / 2.0;
+    vec2 p = b_Pos - rectCenter;
+    return 1.0 - clamp(udRoundBox(p, rectSize / 2.0, u_CornerRadius), 0.0, 1.0);
 }
 float positiveCircle(vec2 center, float radius)
 {
-    return 1.0 - smoothstep(radius - fadeRange / 2.0, radius + fadeRange / 2.0, distance(b_Pos, center));
+    float dist = distance(b_Pos, center);
+    float delta = fwidth(dist);
+    return 1.0 - smoothstep(radius - delta / 2.0, radius + delta / 2.0, dist);
 }
 
 void main()
 {
-    fadeRange = 1.2;
-
     o_Color.rgba = b_Color.rgba;
 
     vec2 topLeftCorner = b_Data.rg + vec2(u_Margin, u_Margin);
     vec2 bottomRightCorner = b_Data.ba - vec2(u_Margin, u_Margin);
 
-    float roundedBoxMultiplier = 0.0;
-    vec2 cursor;
-    cursor = topLeftCorner + vec2(u_CornerRadius);
-    roundedBoxMultiplier += positiveCircle(cursor, u_CornerRadius);
-    cursor = bottomRightCorner - vec2(u_CornerRadius);
-    roundedBoxMultiplier += positiveCircle(cursor, u_CornerRadius);
-    cursor = vec2(topLeftCorner.x + u_CornerRadius, bottomRightCorner.y - u_CornerRadius);
-    roundedBoxMultiplier += positiveCircle(cursor, u_CornerRadius);
-    cursor = vec2(bottomRightCorner.x - u_CornerRadius, topLeftCorner.y + u_CornerRadius);
-    roundedBoxMultiplier += positiveCircle(cursor, u_CornerRadius);
-
-    roundedBoxMultiplier = max(
-        positiveRectangle(
-            vec2(topLeftCorner.x + u_CornerRadius, topLeftCorner.y),
-            vec2(bottomRightCorner.x - u_CornerRadius, bottomRightCorner.y)),
-        roundedBoxMultiplier);
-    roundedBoxMultiplier = max(
-        positiveRectangle(
-            vec2(topLeftCorner.x, topLeftCorner.y + u_CornerRadius),
-            vec2(bottomRightCorner.x, bottomRightCorner.y - u_CornerRadius)),
-        roundedBoxMultiplier);
-
-    roundedBoxMultiplier = min(roundedBoxMultiplier, 1.0);
+    float roundedBoxMultiplier = positiveRoundedRectangle(topLeftCorner, bottomRightCorner);
 
     o_Color.a *= roundedBoxMultiplier;
-
-    // subtract inner box
-
-    topLeftCorner = b_Data.rg + vec2(u_Margin + u_Thickness, u_Margin + u_Thickness);
-    bottomRightCorner = b_Data.ba - vec2(u_Margin + u_Thickness, u_Margin + u_Thickness);
-
-    roundedBoxMultiplier = 0.0;
-    cursor;
-    cursor = topLeftCorner + vec2(u_CornerRadius);
-    roundedBoxMultiplier += positiveCircle(cursor, u_CornerRadius);
-    cursor = bottomRightCorner - vec2(u_CornerRadius);
-    roundedBoxMultiplier += positiveCircle(cursor, u_CornerRadius);
-    cursor = vec2(topLeftCorner.x + u_CornerRadius, bottomRightCorner.y - u_CornerRadius);
-    roundedBoxMultiplier += positiveCircle(cursor, u_CornerRadius);
-    cursor = vec2(bottomRightCorner.x - u_CornerRadius, topLeftCorner.y + u_CornerRadius);
-    roundedBoxMultiplier += positiveCircle(cursor, u_CornerRadius);
-
-    roundedBoxMultiplier = max(
-        positiveRectangle(
-            vec2(topLeftCorner.x + u_CornerRadius, topLeftCorner.y),
-            vec2(bottomRightCorner.x - u_CornerRadius, bottomRightCorner.y)),
-        roundedBoxMultiplier);
-    roundedBoxMultiplier = max(
-        positiveRectangle(
-            vec2(topLeftCorner.x, topLeftCorner.y + u_CornerRadius),
-            vec2(bottomRightCorner.x, bottomRightCorner.y - u_CornerRadius)),
-        roundedBoxMultiplier);
-
-    roundedBoxMultiplier = 1.0 - min(roundedBoxMultiplier, 1.0);
 
     // add checkmark if value is true
-
-    roundedBoxMultiplier +=
+    roundedBoxMultiplier =
         b_MoreData.x *
-        positiveCircle((topLeftCorner + bottomRightCorner) / 2.0, (-topLeftCorner.x + bottomRightCorner.x) / 2.0 - 2.0);
+        positiveCircle((topLeftCorner + bottomRightCorner) / 2.0, (-topLeftCorner.x + bottomRightCorner.x) / 2.0 - 3.0);
 
-    o_Color.a *= roundedBoxMultiplier;
+    o_Color.a *= 1.0 - roundedBoxMultiplier;
 }

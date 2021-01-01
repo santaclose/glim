@@ -13,18 +13,23 @@ uniform vec4 u_SelectionData;
 
 float fadeRange;
 
-float positiveRectangle(vec2 topLeftCorner, vec2 bottomRightCorner)
+float udRoundBox(vec2 p, vec2 b, float r)
 {
-    float val = 0.0;
-    val += smoothstep(topLeftCorner.x - 0.2 / 2.0, topLeftCorner.x + 0.2 / 2.0, b_Pos.x);
-    val *= smoothstep(bottomRightCorner.x + 0.2 / 2.0, bottomRightCorner.x - 0.2 / 2.0, b_Pos.x);
-    val *= smoothstep(bottomRightCorner.y + 0.2 / 2.0, bottomRightCorner.y - 0.2 / 2.0, b_Pos.y);
-    val *= smoothstep(topLeftCorner.y - 0.2 / 2.0, topLeftCorner.y + 0.2 / 2.0, b_Pos.y);
-    return val;
+    return length(max(abs(p) - b + r, 0.0)) - r;
+}
+
+float positiveRoundedRectangle(vec2 topLeftCorner, vec2 bottomRightCorner)
+{
+    vec2 rectSize = bottomRightCorner - topLeftCorner;
+    vec2 rectCenter = topLeftCorner + rectSize / 2.0;
+    vec2 p = b_Pos - rectCenter;
+    return 1.0 - clamp(udRoundBox(p, rectSize / 2.0, u_Radius), 0.0, 1.0);
 }
 float positiveCircle(vec2 center, float radius)
 {
-    return 1.0 - smoothstep(radius - fadeRange / 2.0, radius + fadeRange / 2.0, distance(b_Pos, center));
+    float dist = distance(b_Pos, center);
+    float delta = fwidth(dist);
+    return 1.0 - smoothstep(radius - delta / 2.0, radius + delta / 2.0, dist);
 }
 
 void main()
@@ -37,28 +42,10 @@ void main()
     vec2 bottomRightCorner = b_Data.ba - vec2(1,1);
 
     float roundedBoxMultiplier = 0.0;
-    vec2 cursor;
-    cursor = topLeftCorner + vec2(u_Radius);
-    roundedBoxMultiplier += positiveCircle(cursor, u_Radius);
-    cursor = bottomRightCorner - vec2(u_Radius);
-    roundedBoxMultiplier += positiveCircle(cursor, u_Radius);
-    cursor = vec2(topLeftCorner.x + u_Radius, bottomRightCorner.y - u_Radius);
-    roundedBoxMultiplier += positiveCircle(cursor, u_Radius);
-    cursor = vec2(bottomRightCorner.x - u_Radius, topLeftCorner.y + u_Radius);
-    roundedBoxMultiplier += positiveCircle(cursor, u_Radius);
 
-    roundedBoxMultiplier = max(
-        positiveRectangle(
-            vec2(topLeftCorner.x + u_Radius, topLeftCorner.y),
-            vec2(bottomRightCorner.x - u_Radius, bottomRightCorner.y)),
-        roundedBoxMultiplier);
-    roundedBoxMultiplier = max(
-        positiveRectangle(
-            vec2(topLeftCorner.x, topLeftCorner.y + u_Radius),
-            vec2(bottomRightCorner.x, bottomRightCorner.y - u_Radius)),
-        roundedBoxMultiplier);
+    roundedBoxMultiplier += positiveRoundedRectangle(topLeftCorner, bottomRightCorner);
 
-    o_Color.a *= min(roundedBoxMultiplier, 1.0);
+    o_Color.a *= roundedBoxMultiplier;
     
     // highlight on mouse over
     // u_SelectionData.r === selectedOptionIndex
