@@ -12,29 +12,29 @@ uniform float u_Data[_DATA_FLOAT_COUNT_];
 uniform int u_GroupCount;
 uniform int u_CirclesPerGroup;
 
-float fadeRange;
-
 float negativeCircle(vec2 center, float radius)
 {
 	vec2 tCenter = vec2(center.x * b_Data[2] + b_Data[0], center.y * b_Data[2] + b_Data[1]);
 	float tRadius = radius * b_Data[2];
 
-	return smoothstep(tRadius - fadeRange / 2.0, tRadius + fadeRange / 2.0, distance(b_Pos, tCenter));
+	float dist = distance(b_Pos, tCenter);
+	float delta = fwidth(dist);
+	return smoothstep(tRadius - delta / 2.0, tRadius + delta / 2.0, dist);
 }
 float positiveCircle(vec2 center, float radius)
 {
 	vec2 tCenter = vec2(center.x * b_Data[2] + b_Data[0], center.y * b_Data[2] + b_Data[1]);
 	float tRadius = radius * b_Data[2];
 
-	return 1.0 - smoothstep(tRadius - fadeRange / 2.0, tRadius + fadeRange / 2.0, distance(b_Pos, tCenter));
+	float dist = distance(b_Pos, tCenter);
+	float delta = fwidth(dist);
+	return 1.0 - smoothstep(tRadius - delta / 2.0, tRadius + delta / 2.0, dist);
 }
 
 void main()
 {
 	int floatsPerGlyph = (u_GroupCount * u_CirclesPerGroup) * 4;
 	int glyphID = int(b_Data[3]);
-
-	fadeRange = 1.2;
 
 	o_Color = b_Color;
 	float finalMultiplier = 0.0;
