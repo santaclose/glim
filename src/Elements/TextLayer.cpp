@@ -83,13 +83,13 @@ void Glim::TextLayer::Draw()
 		if (!element.enabled)
 			continue;
 		msdfgl_printf(
-			element.pos.x, element.pos.y,
+			element.pos.x, element.pos.y + element.size,
 			(int)element.alignment,
 			m_fonts[element.fontID], element.size,
 			element.color,
 			(GLfloat*)m_projection,
 			msdfgl_printf_flags::MSDFGL_KERNING,
-			element.text.c_str());
+			element.text);
 	}
 }
 

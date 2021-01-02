@@ -121,7 +121,7 @@ int Glim::SelectionBox::Evaluate(int selectionBoxID)
 	{
 		m_textLayer.Element(
 			(*(m_selectionBoxes[selectionBoxID].options))[i].c_str(),
-			{ pos.x + BOX_WIDTH / 2.0f, pos.y + CORNER_RADIUS + OPTION_HEIGHT * (i + 1) - TEXT_Y_OFFSET },
+			{ pos.x + BOX_WIDTH / 2.0f, pos.y + CORNER_RADIUS + OPTION_HEIGHT * i + TEXT_Y_OFFSET },
 			TEXT_SIZE, m_fontID, 0xffffffff, Glim::Alignment::Center);
 	}
 
