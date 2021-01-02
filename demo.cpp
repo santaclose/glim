@@ -6,22 +6,30 @@
 #include "Input.h"
 #include "Shader.h"
 #include "Geometry.h"
-#include "TextLayer.h"
 #include "CircleFont.h"
 #include "LayerRenderer.h"
+#include "Elements/TextLayer.h"
 #include "Elements/ButtonLayer.h"
 #include "Elements/SelectionBox.h"
 #include "Elements/SliderLayer.h"
 #include "Elements/CheckboxLayer.h"
+#include "Elements/TextFieldLayer.h"
 
 #define APPLICATION_WIDTH 1280
 #define APPLICATION_HEIGHT 720
 
 Glim::SelectionBox selectionBoxes;
 Glim::ButtonLayer floatingButtons;
+float sliderValue = 0.5;
 Glim::SliderLayer sliders;
+bool checkboxValue = false;
 Glim::CheckboxLayer checkboxes;
 Glim::TextLayer sampleText;
+
+#define TEXT_FIELD_BUFFER_SIZE 8
+char textFieldBuffer[TEXT_FIELD_BUFFER_SIZE];
+char textField2Buffer[TEXT_FIELD_BUFFER_SIZE];
+Glim::TextFieldLayer sampleTextField;
 
 uint32_t windowSize[2] = { APPLICATION_WIDTH, APPLICATION_HEIGHT };
 
@@ -34,7 +42,6 @@ const std::vector<std::vector<std::string>> itemOptions = {
 const std::vector<std::string> fileSelectionBoxOptions =
 { "Open", "Save", "Import", "Export", "Exit", "Preferences" };
 
-float sliderValue = 0.5;
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
@@ -54,6 +61,15 @@ void cursor_position_callback(GLFWwindow* window, double xpos, double ypos)
 void mouse_button_callback(GLFWwindow*, int button, int action, int mods)
 {
 	Glim::Input::UpdateMouseButtons(button, action);
+}
+
+void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
+{
+	Glim::Input::UpdateKeyboard(key, action);
+}
+void character_callback(GLFWwindow* window, unsigned int codepoint)
+{
+	Glim::Input::UpdateCharacter(codepoint);
 }
 
 int main()
@@ -90,6 +106,8 @@ int main()
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 	glfwSetCursorPosCallback(window, cursor_position_callback);
 	glfwSetMouseButtonCallback(window, mouse_button_callback);
+	glfwSetKeyCallback(window, key_callback);
+	glfwSetCharCallback(window, character_callback);
 
 	// Get GPU info and supported OpenGL version
 	std::cout << "Renderer: " << glGetString(GL_RENDERER) << std::endl;
@@ -111,7 +129,11 @@ int main()
 	sliders.Init(windowSize);
 	checkboxes.Init(windowSize);
 	sampleText.Init(windowSize);
-	sampleText.CreateFontFromFile("assets/fonts/FiraCode/FiraCode-Regular.ttf");
+	sampleText.CreateFontFromFile("assets/fonts/Lato/Lato-Regular.ttf");
+	sampleTextField.Init(windowSize, "assets/fonts/FiraCode/FiraCode-Regular.ttf");
+	memset(textFieldBuffer, 0, TEXT_FIELD_BUFFER_SIZE);
+	memset(textField2Buffer, 0, TEXT_FIELD_BUFFER_SIZE);
+	textField2Buffer[0] = '9';
 
 	int testSelectionBoxID = -1;
 	int fileSelectionBoxID = -1;
@@ -182,15 +204,21 @@ int main()
 					&categoryOptions, { windowSize[0] - 18.0f - 65.0f / 2.0f, windowSize[1] - 18.0f - 65.0f / 2.0f }, Glim::Corner::BottomRight);
 		}
 
-		sliders.Evaluate({ windowSize[0] / 2.0f - 150.0f, windowSize[1] - 70.0f - sliders.GetWidth() / 2.0f }, 300, &sliderValue);
+		sliders.Evaluate({ 50.0f - sliders.GetWidth() / 2.0, windowSize[1] / 2.0f  - 150.0f }, 300.0f, &sliderValue, Glim::Orientation::Vertical);
+		checkboxes.Evaluate({ 50.0f - checkboxes.GetSize() / 2.0, windowSize[1] / 2.0f + 150.0f }, &checkboxValue);
+		//if (Glim::Input::Key(Glim::Input::KeyCode::Space))
+		//	sliderValue = glm::sin(glfwGetTime()) * 0.5 + 0.5;
 
 		sampleText.Element(
-			"The quick brown fox jumps over the lazy dog",
-			{ windowSize[0] / 2.0f ,  windowSize[1] / 2.0f },
-			sliderValue * 500.0f + 5.0f,
+			"0x000000ff",
+			{ 0.0f ,  0.0f },
+			(1.0 - sliderValue) * 500.0f + 5.0f,
 			0,
 			0x000000ff,
-			Glim::Alignment::Center);
+			Glim::Alignment::Left);
+
+		sampleTextField.Evaluate({ windowSize[0] / 2.0f ,  windowSize[1] / 2.0f + 150.0f }, textFieldBuffer, TEXT_FIELD_BUFFER_SIZE, (1.0 - sliderValue) * 300.0f + 11.0f);
+		sampleTextField.Evaluate({ windowSize[0] / 2.0f ,  windowSize[1] / 2.0f }, textField2Buffer, TEXT_FIELD_BUFFER_SIZE, (1.0 - sliderValue) * 300.0f + 11.0f);
 
 
 		// glim code end ----------------
@@ -206,6 +234,7 @@ int main()
 
 		Glim::Input::FrameEnd();
 		sampleText.FrameEnd();
+		sampleTextField.FrameEnd();
 		floatingButtons.FrameEnd();
 		selectionBoxes.FrameEnd();
 		checkboxes.FrameEnd();
@@ -215,6 +244,7 @@ int main()
 
 	//Glim::Terminate();
 	sampleText.Destroy();
+	sampleTextField.Destroy();
 	glfwTerminate();
 	return 0;
 }
