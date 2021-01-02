@@ -15,7 +15,7 @@ namespace Glim {
 
 		struct TextElement {
 
-			std::string text;
+			const char* text;
 			glm::vec2 pos;
 			float size;
 			unsigned int color;
@@ -41,12 +41,19 @@ namespace Glim {
 		unsigned int CreateFontFromFile(const std::string& filePath);
 
 		void Element(
-			const std::string& text,
+			const char* text,
 			const glm::vec2& pos,
 			float size,
 			unsigned int fontID,
 			unsigned int color = 0xffffffff,
 			Alignment alignment = Alignment::Left);
+
+		// returns the length of the text in pixels
+		float Measure(
+			const char* text,
+			float size,
+			unsigned int fontID,
+			unsigned int limit = 0xffffffff);
 
 		void Destroy();
 		

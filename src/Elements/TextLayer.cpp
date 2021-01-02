@@ -49,7 +49,7 @@ void Glim::TextLayer::OnResize()
 		t->ComputeMatrix();
 }
 
-void Glim::TextLayer::Element(const std::string& text, const glm::vec2& pos, float size, unsigned int fontID, unsigned int color, Alignment alignment)
+void Glim::TextLayer::Element(const char* text, const glm::vec2& pos, float size, unsigned int fontID, unsigned int color, Alignment alignment)
 {
 	if (m_currentID == m_textElements.size())
 		m_textElements.emplace_back();
@@ -63,6 +63,11 @@ void Glim::TextLayer::Element(const std::string& text, const glm::vec2& pos, flo
 	m_textElements[m_currentID].enabled = true;
 
 	m_currentID++;
+}
+
+float Glim::TextLayer::Measure(const char* text, float size, unsigned int fontID, unsigned int limit)
+{
+	return msdfgl_measure(m_fonts[fontID], size, limit, (GLfloat*)m_projection, msdfgl_printf_flags::MSDFGL_KERNING, text);
 }
 
 void Glim::TextLayer::Destroy()
