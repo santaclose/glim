@@ -7,9 +7,7 @@ in vec4 b_Color;
 in vec4 b_Data;
 in vec4 b_MoreData;
 
-uniform float u_Margin;
 uniform float u_CornerRadius;
-uniform float u_Thickness;
 
 float fadeRange;
 
@@ -36,8 +34,8 @@ void main()
 {
     o_Color.rgba = b_Color.rgba;
 
-    vec2 topLeftCorner = b_Data.rg + vec2(u_Margin, u_Margin);
-    vec2 bottomRightCorner = b_Data.ba - vec2(u_Margin, u_Margin);
+    vec2 topLeftCorner = b_Data.rg + vec2(1.0, 1.0);
+    vec2 bottomRightCorner = b_Data.ba - vec2(1.0, 1.0);
 
     float roundedBoxMultiplier = positiveRoundedRectangle(topLeftCorner, bottomRightCorner);
 

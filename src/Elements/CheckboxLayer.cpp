@@ -1,9 +1,7 @@
 #include "CheckboxLayer.h"
 #include "../Input.h"
 
-#define MARGIN 1.0f
 #define CORNER_RADIUS 3.0f
-#define THICKNESS 2.0f
 #define COLOR { 0.35f, 0.35f, 0.35f, 0.9f }
 #define QUAD_SIZE 18.0f
 
@@ -23,9 +21,7 @@ void Glim::CheckboxLayer::Init(const uint32_t* windowSize)
 
 	m_shader.CreateFromFiles("assets/shaders/vert.glsl", "assets/shaders/checkbox.glsl");
 	m_shader.Bind();
-	m_shader.SetUniform1f("u_Margin", MARGIN);
 	m_shader.SetUniform1f("u_CornerRadius", CORNER_RADIUS);
-	m_shader.SetUniform1f("u_Thickness", THICKNESS);
 
 	m_quads.Init(&m_shader);
 }
@@ -54,7 +50,6 @@ void Glim::CheckboxLayer::Evaluate(const glm::vec2& position, bool* value)
 		cursorOver = CollisionTest(m_currentID);
 		if (cursorOver)
 		{
-			needToHighlight = true;
 			if (Input::currentlyHandling == nullptr)
 			{
 				Input::cursorCollisionDetected = true;
