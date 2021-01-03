@@ -26,9 +26,10 @@ bool checkboxValue = false;
 Glim::CheckboxLayer checkboxes;
 Glim::TextLayer sampleText;
 
-#define TEXT_FIELD_BUFFER_SIZE 8
+#define TEXT_FIELD_BUFFER_SIZE 128
 char textFieldBuffer[TEXT_FIELD_BUFFER_SIZE];
 char textField2Buffer[TEXT_FIELD_BUFFER_SIZE];
+char textField3Buffer[TEXT_FIELD_BUFFER_SIZE];
 Glim::TextFieldLayer sampleTextField;
 
 uint32_t windowSize[2] = { APPLICATION_WIDTH, APPLICATION_HEIGHT };
@@ -130,9 +131,10 @@ int main()
 	checkboxes.Init(windowSize);
 	sampleText.Init(windowSize);
 	sampleText.CreateFontFromFile("assets/fonts/Lato/Lato-Regular.ttf");
-	sampleTextField.Init(windowSize, "assets/fonts/FiraCode/FiraCode-Regular.ttf");
+	sampleTextField.Init(windowSize, "assets/fonts/Lato/Lato-Regular.ttf");
 	memset(textFieldBuffer, 0, TEXT_FIELD_BUFFER_SIZE);
 	memset(textField2Buffer, 0, TEXT_FIELD_BUFFER_SIZE);
+	memset(textField3Buffer, 0, TEXT_FIELD_BUFFER_SIZE);
 	textField2Buffer[0] = '9';
 
 	int testSelectionBoxID = -1;
@@ -217,8 +219,12 @@ int main()
 			0x000000ff,
 			Glim::Alignment::Left);
 
-		sampleTextField.Evaluate({ windowSize[0] / 2.0f ,  windowSize[1] / 2.0f + 150.0f }, textFieldBuffer, TEXT_FIELD_BUFFER_SIZE, (1.0 - sliderValue) * 300.0f + 11.0f);
-		sampleTextField.Evaluate({ windowSize[0] / 2.0f ,  windowSize[1] / 2.0f }, textField2Buffer, TEXT_FIELD_BUFFER_SIZE, (1.0 - sliderValue) * 300.0f + 11.0f);
+		sampleTextField.Evaluate({ windowSize[0] / 2.0f ,  windowSize[1] / 2.0f - 150.0f },
+			textField3Buffer, TEXT_FIELD_BUFFER_SIZE, (1.0 - sliderValue) * 300.0f + 11.0f, Glim::Alignment::Left);
+		sampleTextField.Evaluate({ windowSize[0] / 2.0f ,  windowSize[1] / 2.0f + 150.0f },
+			textFieldBuffer, TEXT_FIELD_BUFFER_SIZE, (1.0 - sliderValue) * 300.0f + 11.0f, Glim::Alignment::Center);
+		sampleTextField.Evaluate({ windowSize[0] / 2.0f ,  windowSize[1] / 2.0f },
+			textField2Buffer, TEXT_FIELD_BUFFER_SIZE, (1.0 - sliderValue) * 300.0f + 11.0f, Glim::Alignment::Right);
 
 
 		// glim code end ----------------

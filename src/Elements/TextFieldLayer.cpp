@@ -11,9 +11,16 @@
 bool Glim::TextFieldLayer::CollisionTest(int textFieldID)
 {
 	TextFieldInfo& item = m_textFields[textFieldID];
-	float xSize = m_textLayer->Measure(item.buffer, item.size, m_textLayerFontID);
-	return Input::mousePos[0] > item.pos.x && Input::mousePos[0] < item.pos.x + xSize + 2 * MARGIN &&
-		Input::mousePos[1] > item.pos.y && Input::mousePos[1] < item.pos.y + item.size + 2 * MARGIN;
+	float xSize = m_textLayer->Measure(item.buffer, item.size, m_textLayerFontID) + 2 * MARGIN;
+
+	float spawnPosX = m_textFields[textFieldID].pos.x, spawnPosY = m_textFields[textFieldID].pos.y;
+	if (m_textFields[textFieldID].alignment == Alignment::Right)
+		spawnPosX -= xSize;
+	else if (m_textFields[textFieldID].alignment == Alignment::Center)
+		spawnPosX -= xSize / 2.0f;
+
+	return Input::mousePos[0] > spawnPosX && Input::mousePos[0] < spawnPosX + xSize &&
+		Input::mousePos[1] > spawnPosY && Input::mousePos[1] < spawnPosY + item.size + 2 * MARGIN;
 }
 
 void Glim::TextFieldLayer::Init(const uint32_t* windowSize, const std::string& fontFilePath)
@@ -31,7 +38,7 @@ void Glim::TextFieldLayer::Init(const uint32_t* windowSize, const std::string& f
 	m_quads.Init(&m_shader);
 }
 
-void Glim::TextFieldLayer::Evaluate(const glm::vec2& pos, char* buffer, unsigned int bufferSize, float fontSize)
+void Glim::TextFieldLayer::Evaluate(const glm::vec2& pos, char* buffer, unsigned int bufferSize, float fontSize, Alignment alignment)
 {
 	// update data
 	if (m_currentID == m_textFields.size())
@@ -43,6 +50,7 @@ void Glim::TextFieldLayer::Evaluate(const glm::vec2& pos, char* buffer, unsigned
 	m_textFields[m_currentID].pos = pos;
 	m_textFields[m_currentID].size = fontSize;
 	m_textFields[m_currentID].buffer = buffer;
+	m_textFields[m_currentID].alignment = alignment;
 
 	// handle interaction
 	bool cursorOver = false;
@@ -162,16 +170,22 @@ void Glim::TextFieldLayer::Evaluate(const glm::vec2& pos, char* buffer, unsigned
 		m_quads.UpdateQuadColor(m_textFields[m_currentID].geometryIndex, BOX_COLOR);
 
 	bool interacting = m_currentlyInteracting == m_currentID;
-	float xSize = m_textLayer->Measure(buffer, fontSize, m_textLayerFontID);
+	float xSize = m_textLayer->Measure(buffer, fontSize, m_textLayerFontID) + 2 * MARGIN;
 	float xCursorPos = 0.0;
 	if (interacting)
 		xCursorPos = m_textLayer->Measure(buffer, fontSize, m_textLayerFontID, m_cursorIndex);
-	m_quads.UpdateQuadVertexCoords(m_textFields[m_currentID].geometryIndex, m_textFields[m_currentID].pos, { xSize + 2 * MARGIN, fontSize + 2 * MARGIN });
+
+	float spawnPosX = m_textFields[m_currentID].pos.x, spawnPosY = m_textFields[m_currentID].pos.y;
+	if (alignment == Alignment::Right)
+		spawnPosX -= xSize;
+	else if (alignment == Alignment::Center)
+		spawnPosX -= xSize / 2.0f;
+	m_quads.UpdateQuadVertexCoords(m_textFields[m_currentID].geometryIndex, {spawnPosX, spawnPosY}, { xSize, fontSize + 2 * MARGIN });
 	m_quads.UpdateQuadData(m_textFields[m_currentID].geometryIndex,
-		{ m_textFields[m_currentID].pos.x, m_textFields[m_currentID].pos.y,
-		  m_textFields[m_currentID].pos.x + xSize + 2 * MARGIN, m_textFields[m_currentID].pos.y + fontSize + 2 * MARGIN },
+		{ spawnPosX, spawnPosY,
+		  spawnPosX + xSize, spawnPosY + fontSize + 2 * MARGIN },
 		{ interacting ? 1.0f : 0.0f, xCursorPos, 0.0f, 0.0f });
-	m_textLayer->Element(buffer, pos + glm::vec2(MARGIN, MARGIN - fontSize * 0.15), fontSize, m_textLayerFontID, TEXT_COLOR);//, Glim::Alignment::Center);
+	m_textLayer->Element(buffer, glm::vec2(spawnPosX, spawnPosY) + glm::vec2(MARGIN, MARGIN - fontSize * 0.15), fontSize, m_textLayerFontID, TEXT_COLOR);
 
 	m_currentID++;
 }
