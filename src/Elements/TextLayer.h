@@ -26,9 +26,6 @@ namespace Glim {
 
 		int m_currentID = 0;
 
-		msdfgl_context_t m_context;
-		std::vector<msdfgl_font_t> m_fonts;
-
 		float m_projection[4][4];
 		const uint32_t* m_windowSize;
 
@@ -38,7 +35,6 @@ namespace Glim {
 
 	public:
 		void Init(const uint32_t* windowSize);
-		unsigned int CreateFontFromFile(const std::string& filePath);
 
 		void Element(
 			const char* text,
@@ -54,8 +50,6 @@ namespace Glim {
 			float size,
 			unsigned int fontID,
 			unsigned int limit = 0xffffffff);
-
-		void Destroy();
 		
 		void Draw();
 		void FrameEnd();

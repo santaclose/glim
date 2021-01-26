@@ -19,9 +19,9 @@ namespace Glim {
 			const std::vector<std::string>* options;
 			uint32_t geometryIndex;
 			Corner cornerAtPos;
+			unsigned int fontID;
 		};
 
-		unsigned int m_fontID;
 		int m_currentOnScreenBoxCount = 0;
 		glm::vec2 m_lastSelectionPos = { -1, -1 };
 
@@ -40,7 +40,7 @@ namespace Glim {
 		void Init(const uint32_t* windowSize);
 		void OnResize();
 
-		int Create(const std::vector<std::string>* options, const glm::vec2& position, Corner cornerAtPos = Corner::TopLeft);
+		int Create(const std::vector<std::string>* options, const glm::vec2& position, unsigned int fontID, Corner cornerAtPos = Corner::TopLeft);
 		int Evaluate(int selectionBoxID);
 
 		float GetWidth();

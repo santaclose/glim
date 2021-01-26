@@ -17,6 +17,7 @@ namespace Glim {
 			float size;
 			const char* buffer;
 			Alignment alignment;
+			unsigned int fontID;
 		};
 
 		int m_currentID = 0;
@@ -27,7 +28,6 @@ namespace Glim {
 		Shader m_shader;
 		Geometry m_quads;
 		TextLayer* m_textLayer;
-		unsigned int m_textLayerFontID;
 
 		int m_clickPending = -1;
 		int m_currentlyInteracting = -1;
@@ -36,12 +36,13 @@ namespace Glim {
 		bool CollisionTest(int textFieldID);
 
 	public:
-		void Init(const uint32_t* windowSize, const std::string& fontFilePath);
+		void Init(const uint32_t* windowSize);
 
 		void Evaluate(
 			const glm::vec2& pos,
 			char* buffer,
 			unsigned int bufferSize,
+			unsigned int fontID,
 			float fontSize = 11.0f,
 			Alignment alignment = Alignment::Left);
 

@@ -34,7 +34,6 @@ void Glim::SelectionBox::Init(const uint32_t* windowSize)
 	m_windowSize = windowSize;
 
 	m_textLayer.Init(windowSize);
-	m_fontID = m_textLayer.CreateFontFromFile("assets/fonts/Open_Sans/OpenSans-SemiBold.ttf");
 
 	m_shader.CreateFromFiles("assets/shaders/vert.glsl", "assets/shaders/selectionBox.glsl");
 	m_shader.Bind();
@@ -65,7 +64,7 @@ void Glim::SelectionBox::OnResize()
 	}
 }
 
-int Glim::SelectionBox::Create(const std::vector<std::string>* options, const glm::vec2& position, Corner cornerAtPos)
+int Glim::SelectionBox::Create(const std::vector<std::string>* options, const glm::vec2& position, unsigned int fontID, Corner cornerAtPos)
 {
 	glm::vec2 pos = position;
 	glm::vec2 boxSize = { BOX_WIDTH, OPTION_HEIGHT * options->size() + CORNER_RADIUS * 2.0f };
@@ -97,6 +96,7 @@ int Glim::SelectionBox::Create(const std::vector<std::string>* options, const gl
 		m_selectionBoxes[m_currentOnScreenBoxCount].options = options;
 		m_selectionBoxes[m_currentOnScreenBoxCount].pos = position;
 		m_selectionBoxes[m_currentOnScreenBoxCount].cornerAtPos = cornerAtPos;
+		m_selectionBoxes[m_currentOnScreenBoxCount].fontID = fontID;
 	}
 
 	m_currentOnScreenBoxCount++;
@@ -122,7 +122,7 @@ int Glim::SelectionBox::Evaluate(int selectionBoxID)
 		m_textLayer.Element(
 			(*(m_selectionBoxes[selectionBoxID].options))[i].c_str(),
 			{ pos.x + BOX_WIDTH / 2.0f, pos.y + CORNER_RADIUS + OPTION_HEIGHT * i + TEXT_Y_OFFSET },
-			TEXT_SIZE, m_fontID, 0xffffffff, Glim::Alignment::Center);
+			TEXT_SIZE, m_selectionBoxes[selectionBoxID].fontID, 0xffffffff, Glim::Alignment::Center);
 	}
 
 	// handle interaction

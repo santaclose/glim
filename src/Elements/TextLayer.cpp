@@ -3,6 +3,7 @@
 #include <iostream>
 #include <glm/gtc/matrix_transform.hpp>
 #include "LayerRenderer.h"
+#include "../FontManager.h"
 
 namespace Glim {
 
@@ -17,30 +18,11 @@ void Glim::TextLayer::ComputeMatrix()
 void Glim::TextLayer::Init(const uint32_t* windowSize)
 {
 	m_windowSize = windowSize;
-	m_context = msdfgl_create_context("460 core");
-	if (!m_context)
-		std::cout << "[Text] Failed to create msdfgl context\n";
-
-	/* Enable auto-generating undefined glyphs as they are encountered for the first time. */
-	msdfgl_set_missing_glyph_callback(m_context, msdfgl_generate_glyph, NULL);
 
 	_msdfgl_ortho(0.0, (float)windowSize[0], (float)windowSize[1], 0.0, -1.0, 1.0, m_projection);
 
 	LayerRenderer::PushLayer(this);
 	instances.push_back(this);
-}
-
-unsigned int Glim::TextLayer::CreateFontFromFile(const std::string& filePath)
-{
-	m_fonts.emplace_back();
-	m_fonts.back() = msdfgl_load_font(m_context, filePath.c_str(),
-		1.7, 2.0, NULL);
-	/* range, scale, atlas (NULL creates a new one) */
-
-	/* Loads characters 0-128 onto the textures. This is where all the GPU cycles went. */
-	msdfgl_generate_ascii(m_fonts.back());
-
-	return m_fonts.size() - 1;
 }
 
 void Glim::TextLayer::OnResize()
@@ -67,16 +49,10 @@ void Glim::TextLayer::Element(const char* text, const glm::vec2& pos, float size
 
 float Glim::TextLayer::Measure(const char* text, float size, unsigned int fontID, unsigned int limit)
 {
-	return msdfgl_measure(m_fonts[fontID], size, limit, (GLfloat*)m_projection, msdfgl_printf_flags::MSDFGL_KERNING, text);
+	msdfgl_font_t* font = (msdfgl_font_t*) FontManager::GetFontData(fontID);
+	return msdfgl_measure(*font, size, limit, (GLfloat*)m_projection, msdfgl_printf_flags::MSDFGL_KERNING, text);
 }
 
-void Glim::TextLayer::Destroy()
-{
-	/* Cleanup */
-	for (msdfgl_font_t& font : m_fonts)
-		msdfgl_destroy_font(font);
-	msdfgl_destroy_context(m_context);
-}
 
 void Glim::TextLayer::Draw()
 {
@@ -87,10 +63,11 @@ void Glim::TextLayer::Draw()
 	{
 		if (!element.enabled)
 			continue;
+		msdfgl_font_t* font = (msdfgl_font_t*)FontManager::GetFontData(element.fontID);
 		msdfgl_printf(
 			element.pos.x, element.pos.y + element.size,
 			(int)element.alignment,
-			m_fonts[element.fontID], element.size,
+			*font, element.size,
 			element.color,
 			(GLfloat*)m_projection,
 			msdfgl_printf_flags::MSDFGL_KERNING,
