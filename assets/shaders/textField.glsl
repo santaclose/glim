@@ -50,5 +50,5 @@ void main()
 
     vec2 cursorTopLeft = vec2(topLeftCorner.x + u_Margin + b_MoreData.y, topLeftCorner.y + 3.0);
     vec2 cursorBottomRight = vec2(topLeftCorner.x + u_Margin + b_MoreData.y + u_CursorThickness, bottomRightCorner.y - 3.0);
-    o_Color.a *= 1.0 - positiveRectangle(cursorTopLeft, cursorBottomRight);
+    o_Color.rgb += vec3(positiveRectangle(cursorTopLeft, cursorBottomRight));
 }

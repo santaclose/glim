@@ -11,8 +11,6 @@ uniform float u_Radius;
 uniform float u_OptionHeight;
 uniform vec4 u_SelectionData;
 
-float fadeRange;
-
 float udRoundBox(vec2 p, vec2 b, float r)
 {
     return length(max(abs(p) - b + r, 0.0)) - r;
@@ -34,8 +32,6 @@ float positiveCircle(vec2 center, float radius)
 
 void main()
 {
-    fadeRange = 1.2;
-
     o_Color.rgba = b_Color.rgba;
     
     vec2 topLeftCorner = b_Data.rg + vec2(1,1);

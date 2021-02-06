@@ -11,11 +11,14 @@ namespace Glim::Input {
 	void UpdateMousePosition(double xpos, double ypos);
 	void UpdateKeyboard(int key, int action);
 	void UpdateCharacter(unsigned int character);
+	void UpdateMouseScroll(float xoffset, float yoffset);
 	void FrameEnd();
 
 	bool MouseButtonDown(int buttonID);
 	bool MouseButtonUp(int buttonID);
 	bool MouseButton(int buttonID);
+	bool MouseScrollUp();
+	bool MouseScrollDown();
 
 	bool KeyDown(int key);
 	bool KeyUp(int key);

@@ -1,4 +1,4 @@
-ο»Ώ#include <glad/glad.h>
+#include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <iostream>
 #include <cstdint>
@@ -17,38 +17,30 @@
 #include "Elements/TextFieldLayer.h"
 #include "Elements/ListViewLayer.h"
 
-#define APPLICATION_WIDTH 1280
+#define APPLICATION_WIDTH 360
 #define APPLICATION_HEIGHT 720
+#define BAR_HEIGHT 48
 
 unsigned int appFont;
 
 Glim::SelectionBox selectionBoxes;
 Glim::ButtonLayer floatingButtons;
-float sliderValue = 0.95;
+float sliderValue = 0.5;
 Glim::SliderLayer sliders;
-bool checkboxValue = false;
-Glim::CheckboxLayer checkboxes;
-Glim::TextLayer sampleText;
 
-std::vector<std::string> listViewItems = { "asdf", "fdsa", "zxcv" };
+Glim::Geometry topBarQuad;
+
+std::vector<std::string> listViewItems = { "asdf", "fdsa", "zxcv", "0!ρ", "αινσ" };
 Glim::ListViewLayer listViewLayer;
 
-#define TEXT_FIELD_BUFFER_SIZE 128
+#define TEXT_FIELD_BUFFER_SIZE 32
 char textFieldBuffer[TEXT_FIELD_BUFFER_SIZE];
-char textField2Buffer[TEXT_FIELD_BUFFER_SIZE];
-char textField3Buffer[TEXT_FIELD_BUFFER_SIZE];
-Glim::TextFieldLayer sampleTextField;
+Glim::TextFieldLayer textFieldLayer;
 
 uint32_t windowSize[2] = { APPLICATION_WIDTH, APPLICATION_HEIGHT };
 
-const std::vector<std::string> categoryOptions = { "0", "1", "2", "3" };
-const std::vector<std::vector<std::string>> itemOptions = {
-	{ "0a", "0b", "0c", "0d" },
-	{ "1a", "1b", "1c", "1d" },
-	{ "2a", "2b", "2c", "2d" },
-	{ "3a", "3b", "3c", "3d" } };
-const std::vector<std::string> fileSelectionBoxOptions =
-{ "Open", "Save", "Import", "Export", "Exit", "Preferences" };
+const std::vector<std::string> addOptions = { "Create Playlist" };
+const std::vector<std::string> fileSelectionBoxOptions = { "Library", "Playlists", "Quit" };
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
@@ -125,15 +117,6 @@ int main()
 	std::cout << "Renderer: " << glGetString(GL_RENDERER) << std::endl;
 	std::cout << "OpenGL version supported: " << glGetString(GL_VERSION) << std::endl;
 
-	// Monitor info
-	/*GLFWmonitor* monitor = glfwGetPrimaryMonitor();
-	float xscale, yscale;
-	glfwGetMonitorContentScale(monitor, &xscale, &yscale);
-	float wxscale, wyscale;
-	glfwGetWindowContentScale(window, &wxscale, &wyscale);
-	std::cout << "Monitor content scale: " << xscale << ", " << yscale << '\n';
-	std::cout << "Window content scale: " << wxscale << ", " << wyscale << '\n';*/
-
 	// Glim::Init();
 
 	Glim::FontManager::Init();
@@ -142,15 +125,16 @@ int main()
 	selectionBoxes.Init(windowSize);
 	floatingButtons.Init(windowSize, Glim::ButtonLayer::IconSource::CircleFont, "assets/icons.cf");
 	sliders.Init(windowSize);
-	checkboxes.Init(windowSize);
-	sampleText.Init(windowSize);
-	sampleTextField.Init(windowSize);
+	textFieldLayer.Init(windowSize);
+
+	Glim::Shader basicShader;
+	basicShader.CreateFromFiles("assets/shaders/vert.glsl", "assets/shaders/frag.glsl");
+	topBarQuad.Init(&basicShader);
+	topBarQuad.CreateQuad({ 0.0, 0.0 }, { windowSize[0], BAR_HEIGHT }, { 0.3, 0.3, 0.3, 1.0 });
+
 	listViewLayer.Init(windowSize);
 
 	memset(textFieldBuffer, 0, TEXT_FIELD_BUFFER_SIZE);
-	memset(textField2Buffer, 0, TEXT_FIELD_BUFFER_SIZE);
-	memset(textField3Buffer, 0, TEXT_FIELD_BUFFER_SIZE);
-	textField2Buffer[0] = '9';
 
 	int testSelectionBoxID = -1;
 	int fileSelectionBoxID = -1;
@@ -197,7 +181,7 @@ int main()
 				break;
 			default:
 				std::cout << "file menu selection: " << selection << std::endl;
-				if (selection == 4)
+				if (selection == 2)
 					glfwSetWindowShouldClose(window, 1);
 				selectionBoxes.Delete(fileSelectionBoxID);
 				fileSelectionBoxID = -1;
@@ -206,67 +190,49 @@ int main()
 		}
 
 		// floating buttons
-		if (floatingButtons.Evaluate({ 18.0f, 18.0f }, 65.0f, 1))
+		float menuButtonSize = BAR_HEIGHT - 8.0;
+		if (floatingButtons.Evaluate({ 8.0f, 4.0 }, menuButtonSize, 1))
 		{
 			std::cout << "file button clicked\n";
 			if (fileSelectionBoxID == -1)
 				fileSelectionBoxID = selectionBoxes.Create(
-					&fileSelectionBoxOptions, { 18.0f + 65.0f / 2.0f, 18.0f + 65.0f / 2.0f }, appFont);
+					&fileSelectionBoxOptions, { 8.0f + menuButtonSize / 2.0, 4.0 + menuButtonSize / 2.0 }, appFont);
 		}
-		if (floatingButtons.Evaluate({ windowSize[0] - 18.0f - 65.0f, windowSize[1] - 18.0f - 65.0f }, 65.0f, 0))
+		if (floatingButtons.Evaluate({ windowSize[0] - 18.0f - 58.0f, windowSize[1] - 18.0f - 58.0f }, 58.0f, 0))
 		{
 			std::cout << "hierarchy button clicked\n";
 			if (testSelectionBoxID == -1)
 				testSelectionBoxID = selectionBoxes.Create(
-					&categoryOptions, { windowSize[0] - 18.0f - 65.0f / 2.0f, windowSize[1] - 18.0f - 65.0f / 2.0f }, appFont, Glim::Corner::BottomRight);
+					&addOptions, { windowSize[0] - 18.0f - 58.0f / 2.0f, windowSize[1] - 18.0f - 58.0f / 2.0f }, appFont, Glim::Corner::BottomRight);
 		}
 
-		sliders.Evaluate({ 50.0f - sliders.GetWidth() / 2.0, windowSize[1] / 2.0f - 150.0f }, 300.0f, &sliderValue, Glim::Orientation::Vertical);
-		checkboxes.Evaluate({ 50.0f - checkboxes.GetSize() / 2.0, windowSize[1] / 2.0f + 150.0f }, &checkboxValue);
-		//if (Glim::Input::Key(Glim::Input::KeyCode::Space))
-		//	sliderValue = glm::sin(glfwGetTime()) * 0.5 + 0.5;
+		sliders.Evaluate({ 20.0f - sliders.GetWidth() / 2.0, windowSize[1] / 2.0f - 150.0f }, 300.0f, &sliderValue, Glim::Orientation::Vertical);
 
-		sampleText.Element(
-			"asdffdsa",
-			{ windowSize[0] / 2.0f ,  0.0f },
-			(1.0 - sliderValue) * 500.0f + 5.0f,
-			appFont,
-			0x000000ff,
-			Glim::HAlignment::Center);
+		textFieldLayer.Evaluate({ windowSize[0] / 2.0f, BAR_HEIGHT / 2.0 },
+			textFieldBuffer, TEXT_FIELD_BUFFER_SIZE, appFont, 14.0f, Glim::HAlignment::Center, Glim::VAlignment::Center);
 
-		sampleTextField.Evaluate({ windowSize[0] / 2.0f ,  windowSize[1] / 2.0f - 150.0f },
-			textField3Buffer, TEXT_FIELD_BUFFER_SIZE, appFont, (1.0 - sliderValue) * 300.0f + 11.0f, Glim::HAlignment::Left);
-		sampleTextField.Evaluate({ windowSize[0] / 2.0f ,  windowSize[1] / 2.0f + 150.0f },
-			textFieldBuffer, TEXT_FIELD_BUFFER_SIZE, appFont, (1.0 - sliderValue) * 300.0f + 11.0f, Glim::HAlignment::Center);
-		sampleTextField.Evaluate({ windowSize[0] / 2.0f ,  windowSize[1] / 2.0f },
-			textField2Buffer, TEXT_FIELD_BUFFER_SIZE, appFont, (1.0 - sliderValue) * 300.0f + 11.0f, Glim::HAlignment::Right);
-
-		listViewLayer.Evaluate({ windowSize[0] - 216.0f, windowSize[1] / 2.0f -  200.0f }, { 200.0, 400.0 }, &listViewItems, appFont);
+		listViewLayer.Evaluate({ 0.0, BAR_HEIGHT }, { windowSize[0], windowSize[1] - BAR_HEIGHT }, &listViewItems, appFont);
 
 		// glim code end ----------------
 
 		//Glim::Render();
 		sliders.BeforeDraw();
 		floatingButtons.BeforeDraw();
-		checkboxes.BeforeDraw();
-		checkboxes.FrameEnd();
 		Glim::LayerRenderer::Render();
 
 		glfwSwapBuffers(window);
 
 		Glim::Input::FrameEnd();
-		sampleText.FrameEnd();
-		sampleTextField.FrameEnd();
+		textFieldLayer.FrameEnd();
 		listViewLayer.FrameEnd();
 		floatingButtons.FrameEnd();
 		selectionBoxes.FrameEnd();
-		checkboxes.FrameEnd();
 		sliders.FrameEnd();
 		glfwWaitEvents();
 	}
 
 	//Glim::Terminate();
-	sampleTextField.Destroy();
+	textFieldLayer.Destroy();
 	Glim::FontManager::Destroy();
 	glfwTerminate();
 	return 0;

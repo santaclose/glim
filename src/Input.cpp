@@ -1,5 +1,6 @@
 #include "Input.h"
 #include <unordered_map>
+#include <iostream>
 
 namespace Glim::Input {
 
@@ -7,6 +8,8 @@ namespace Glim::Input {
 	bool mouseButtonsPressing[3] = { false, false, false };
 	bool mouseButtons[3] = { false, false, false };
 	float mousePos[2];
+
+	float mouseScroll[2] = { 0.0f, 0.0f };
 
 	struct KeyState {
 
@@ -43,6 +46,8 @@ void Glim::Input::FrameEnd()
 		mouseButtonsPressing[1] =
 		mouseButtonsReleasing[2] =
 		mouseButtonsPressing[2] = false;
+	
+	mouseScroll[0] = mouseScroll[1] = 0.0f;
 
 	for (auto& pair : keyStates)
 	{
@@ -89,6 +94,12 @@ void Glim::Input::UpdateMousePosition(double xpos, double ypos)
 	mousePos[1] = ypos;
 }
 
+void Glim::Input::UpdateMouseScroll(float xoffset, float yoffset)
+{
+	mouseScroll[0] = xoffset;
+	mouseScroll[1] = yoffset;
+}
+
 bool Glim::Input::MouseButtonDown(int buttonID)
 {
 	return mouseButtonsPressing[buttonID];
@@ -104,6 +115,15 @@ bool Glim::Input::MouseButton(int buttonID)
 	return mouseButtons[buttonID];
 }
 
+bool Glim::Input::MouseScrollUp()
+{
+	return mouseScroll[1] == 1.0f;
+}
+
+bool Glim::Input::MouseScrollDown()
+{
+	return mouseScroll[1] == -1.0f;
+}
 
 bool Glim::Input::KeyDown(int key)
 {

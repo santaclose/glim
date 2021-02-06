@@ -16,7 +16,8 @@ namespace Glim {
 			glm::vec2 pos;
 			float size;
 			const char* buffer;
-			Alignment alignment;
+			HAlignment hAlignment;
+			VAlignment vAlignment;
 			unsigned int fontID;
 		};
 
@@ -44,7 +45,8 @@ namespace Glim {
 			unsigned int bufferSize,
 			unsigned int fontID,
 			float fontSize = 11.0f,
-			Alignment alignment = Alignment::Left);
+			HAlignment hAlignment = HAlignment::Left,
+			VAlignment vAlignment = VAlignment::Top);
 
 		void FrameEnd();
 		void Destroy();

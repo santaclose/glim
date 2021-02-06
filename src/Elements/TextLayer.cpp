@@ -31,7 +31,7 @@ void Glim::TextLayer::OnResize()
 		t->ComputeMatrix();
 }
 
-void Glim::TextLayer::Element(const char* text, const glm::vec2& pos, float size, unsigned int fontID, unsigned int color, Alignment alignment)
+void Glim::TextLayer::Element(const char* text, const glm::vec2& pos, float size, unsigned int fontID, unsigned int color, HAlignment alignment)
 {
 	if (m_currentID == m_textElements.size())
 		m_textElements.emplace_back();

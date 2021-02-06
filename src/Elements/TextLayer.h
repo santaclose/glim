@@ -20,7 +20,7 @@ namespace Glim {
 			float size;
 			unsigned int color;
 			unsigned int fontID;
-			Alignment alignment;
+			HAlignment alignment;
 			bool enabled;
 		};
 
@@ -42,7 +42,7 @@ namespace Glim {
 			float size,
 			unsigned int fontID,
 			unsigned int color = 0xffffffff,
-			Alignment alignment = Alignment::Left);
+			HAlignment alignment = HAlignment::Left);
 
 		// returns the length of the text in pixels
 		float Measure(
