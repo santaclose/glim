@@ -30,7 +30,7 @@ bool checkboxValue = false;
 Glim::CheckboxLayer checkboxes;
 Glim::TextLayer sampleText;
 
-std::vector<std::string> listViewItems = { "asdf", "fdsa", "zxcv" };
+std::vector<std::string> listViewItems = { "asdf", "fdsa", "zxcv", "fdsa", "zxcv", "fdsa", "zxcv", "fdsa", "zxcv", "fdsa", "zxcv", "fdsa", "zxcv", "fdsa", "zxcv", "fdsa", "zxcv", "fdsa", "zxcv" };
 Glim::ListViewLayer listViewLayer;
 
 #define TEXT_FIELD_BUFFER_SIZE 128

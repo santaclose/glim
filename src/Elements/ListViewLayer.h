@@ -27,6 +27,8 @@ namespace Glim {
 		Shader m_shader;
 		TextLayer m_textLayer;
 
+		int m_currentlyInteracting = -1;
+
 		glm::vec4 m_shaderUniformData = { -1.0f, -1.0, -1.0, -1.0 };
 
 		std::vector<ListViewInfo> m_listViews;

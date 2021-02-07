@@ -30,7 +30,7 @@ Glim::SliderLayer sliders;
 
 Glim::Geometry topBarQuad;
 
-std::vector<std::string> listViewItems = { "asdf", "fdsa", "zxcv", "0!ρ", "αινσ" };
+std::vector<std::string> listViewItems = { "asdf", "fdsa", "zxcv", "5655", "0000" };
 Glim::ListViewLayer listViewLayer;
 
 #define TEXT_FIELD_BUFFER_SIZE 32
@@ -159,6 +159,9 @@ int main()
 			{
 			case Glim::SelectionBox::Selection::None:
 				break;
+			case 0:
+				listViewItems.push_back("asdf");
+				break;
 			default:
 				std::cout << "category selection: " << selection << std::endl;
 				selectionBoxes.Delete(testSelectionBoxID);
@@ -211,7 +214,8 @@ int main()
 		textFieldLayer.Evaluate({ windowSize[0] / 2.0f, BAR_HEIGHT / 2.0 },
 			textFieldBuffer, TEXT_FIELD_BUFFER_SIZE, appFont, 14.0f, Glim::HAlignment::Center, Glim::VAlignment::Center);
 
-		listViewLayer.Evaluate({ 0.0, BAR_HEIGHT }, { windowSize[0], windowSize[1] - BAR_HEIGHT }, &listViewItems, appFont);
+		int asdf = listViewLayer.Evaluate({ 0.0, BAR_HEIGHT }, { windowSize[0], windowSize[1] - BAR_HEIGHT }, &listViewItems, appFont);
+		if (asdf != -1)std::cout << asdf << std::endl;
 
 		// glim code end ----------------
 

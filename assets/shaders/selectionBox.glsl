@@ -20,7 +20,16 @@ float positiveRoundedRectangle(vec2 topLeftCorner, vec2 bottomRightCorner)
 {
     vec2 rectSize = bottomRightCorner - topLeftCorner;
     vec2 rectCenter = topLeftCorner + rectSize / 2.0;
-    vec2 p = b_Pos - rectCenter;
+    vec2 fixedPos = b_Pos;
+
+    rectSize.x = floor(rectSize.x);
+    rectSize.y = floor(rectSize.y);
+    rectCenter.x = floor(rectCenter.x);
+    rectCenter.y = floor(rectCenter.y);
+    rectCenter.x += 0.5 * float(mod(rectSize.x, 2.0) < 0.1);
+    rectCenter.y += 0.5 * float(mod(rectSize.y, 2.0) < 0.1);
+
+    vec2 p = fixedPos - rectCenter;
     return 1.0 - clamp(udRoundBox(p, rectSize / 2.0, u_Radius), 0.0, 1.0);
 }
 float positiveCircle(vec2 center, float radius)
@@ -34,8 +43,8 @@ void main()
 {
     o_Color.rgba = b_Color.rgba;
     
-    vec2 topLeftCorner = b_Data.rg + vec2(1,1);
-    vec2 bottomRightCorner = b_Data.ba - vec2(1,1);
+    vec2 topLeftCorner = b_Data.rg + vec2(1.0, 1.0);
+    vec2 bottomRightCorner = b_Data.ba - vec2(1.0, 1.0);
 
     float roundedBoxMultiplier = 0.0;
 

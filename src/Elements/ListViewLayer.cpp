@@ -5,11 +5,11 @@
 #define TEXT_COLOR 0xffffffff
 #define BOX_COLOR { 0.5f, 0.5f, 0.5f, 0.9f }
 #define H_MARGIN 48.0f
-#define V_MARGIN 16.0f
-#define BAR_HEIGHT 32
+#define V_MARGIN 24.0f
+#define BAR_HEIGHT 28
 #define TEXT_SIZE 14
 #define TEXT_OFFSET_X 16.0f
-#define TEXT_OFFSET_Y 8.0f
+#define TEXT_OFFSET_Y 6.0f
 #define SCROLL_SENSITIVITY 12.0f
 #define CORNER_RADIUS 5.0f
 
@@ -50,6 +50,8 @@ void Glim::ListViewLayer::Init(const uint32_t* windowSize)
 
 int Glim::ListViewLayer::Evaluate(const glm::vec2& position, const glm::vec2& size, const std::vector<std::string>* options, unsigned int fontID)
 {
+	int returnValue = -1;
+
 	// update data
 	if (m_currentID == m_listViews.size())
 	{
@@ -63,18 +65,51 @@ int Glim::ListViewLayer::Evaluate(const glm::vec2& position, const glm::vec2& si
 	m_listViews[m_currentID].fontID = fontID;
 
 	// handle interaction
+	bool cursorOver = false;
 	int itemIndex = -2;
-	bool cursorOver = CursorOver(m_currentID);
-	if (cursorOver && !Input::cursorCollisionDetected)
+	if (!Input::cursorCollisionDetected)
 	{
-		Input::cursorCollisionDetected = true;
-		if (Input::MouseScrollUp())
-			m_listViews[m_currentID].scrollOffset += SCROLL_SENSITIVITY;
-		else if (Input::MouseScrollDown())
-			m_listViews[m_currentID].scrollOffset -= SCROLL_SENSITIVITY;
-		itemIndex = CollisionTest(m_currentID);
-		if (Input::MouseButtonDown(0))
-			std::cout << itemIndex << std::endl;
+		cursorOver = CursorOver(m_currentID);
+		if (cursorOver)
+		{
+			if (Input::currentlyHandling == nullptr)
+			{
+				Input::cursorCollisionDetected = true;
+				if (Input::MouseButtonDown(0))
+				{
+					Input::currentlyHandling = this;
+					m_currentlyInteracting = m_currentID;
+				}
+			}
+
+			float availableArea = m_listViews[m_currentID].size.y - 2.0f * V_MARGIN;
+			float requiredArea = m_listViews[m_currentID].options->size() * ((float)BAR_HEIGHT);
+			if (requiredArea > availableArea)
+			{
+				if (Input::MouseScrollUp())
+				{
+					m_listViews[m_currentID].scrollOffset += SCROLL_SENSITIVITY;
+					if (m_listViews[m_currentID].scrollOffset > 0.0f)
+						m_listViews[m_currentID].scrollOffset = 0.0f;
+				}
+				else if (Input::MouseScrollDown())
+				{
+					m_listViews[m_currentID].scrollOffset -= SCROLL_SENSITIVITY;
+					float difference = requiredArea - availableArea;
+
+					if (m_listViews[m_currentID].scrollOffset < -difference)
+						m_listViews[m_currentID].scrollOffset = -difference;
+				}
+			}
+			itemIndex = CollisionTest(m_currentID);
+		}
+	}
+	if (Input::MouseButtonUp(0) && Input::currentlyHandling == this && m_currentlyInteracting == m_currentID)
+	{
+		Input::currentlyHandling = nullptr;
+		m_currentlyInteracting = -1;
+		if (cursorOver)
+			returnValue = itemIndex;
 	}
 
 	// update data
@@ -107,7 +142,7 @@ int Glim::ListViewLayer::Evaluate(const glm::vec2& position, const glm::vec2& si
 	m_quads.UpdateQuadColor(m_listViews[m_currentID].geometryIndex, BOX_COLOR);
 
 	m_currentID++;
-	return -1;
+	return returnValue;
 }
 
 void Glim::ListViewLayer::FrameBegin()
