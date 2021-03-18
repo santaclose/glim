@@ -39,7 +39,12 @@ namespace Glim {
 	public:
 		void Init(const uint32_t* windowSize);
 
-		int Evaluate(const glm::vec2& position, const glm::vec2& size, const std::vector<std::string>* options, unsigned int fontID);
+		int Evaluate(
+			const glm::vec2& position,
+			const glm::vec2& size, const std::vector<std::string>* options,
+			unsigned int fontID,
+			const glm::vec4& color = { 0.35f, 0.35f, 0.35f, 0.9f },
+			unsigned int textColor = 0xffffffff);
 
 		void FrameBegin();
 		void BeforeDraw();

@@ -29,7 +29,7 @@ namespace Glim {
 
 	public:
 		void Init(const uint32_t* windowSize);
-		void Evaluate(const glm::vec2& position, bool* value);
+		void Evaluate(const glm::vec2& position, bool* value, const glm::vec4& color = { 0.35f, 0.35f, 0.35f, 0.9f });
 		float GetSize();
 
 		void BeforeDraw();

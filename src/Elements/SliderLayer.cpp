@@ -7,9 +7,6 @@
 #define HANDLE_RADIUS 8.0f
 #define QUAD_WIDTH 25.0f
 
-#define COLOR { 0.35f, 0.35f, 0.35f, 0.9f }
-
-
 bool Glim::SliderLayer::CollisionTest(int sliderID)
 {
 	glm::vec2 circleCenter;
@@ -48,7 +45,7 @@ void Glim::SliderLayer::Init(const uint32_t* windowSize)
 	m_quads.Init(&m_shader);
 }
 
-void Glim::SliderLayer::Evaluate(const glm::vec2& position, float size, float* value, Orientation orientation)
+void Glim::SliderLayer::Evaluate(const glm::vec2& position, float size, float* value, Orientation orientation, const glm::vec4& color)
 {
 	// update data
 	if (m_currentID == m_sliders.size())
@@ -113,12 +110,12 @@ void Glim::SliderLayer::Evaluate(const glm::vec2& position, float size, float* v
 	// update data
 	if (needToHighlight)
 	{
-		glm::vec4 highlightedButtonColor = COLOR;
+		glm::vec4 highlightedButtonColor = color;
 		highlightedButtonColor += glm::vec4(0.1f, 0.1f, 0.1f, 0.0f);
 		m_quads.UpdateQuadColor(m_sliders[m_currentID].geometryIndex, highlightedButtonColor);
 	}
 	else
-		m_quads.UpdateQuadColor(m_sliders[m_currentID].geometryIndex, COLOR);
+		m_quads.UpdateQuadColor(m_sliders[m_currentID].geometryIndex, color);
 	if (needToUpdateDraggingOffset)
 	{
 		float valueFromMousePos = m_sliders[m_currentID].orientation == Orientation::Horizontal ?

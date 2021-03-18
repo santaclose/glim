@@ -21,6 +21,9 @@
 #define APPLICATION_HEIGHT 720
 #define BAR_HEIGHT 48
 
+#define MAIN_COLOR { 0, 194.0f/255.0f, 149.0f/255.0f, 1.0 }
+#define SECOND_COLOR { 0.0f, 168.0f/255.0f, 128.0f/255.0f, 0.9 }
+
 unsigned int appFont;
 
 Glim::SelectionBox selectionBoxes;
@@ -130,7 +133,7 @@ int main()
 	Glim::Shader basicShader;
 	basicShader.CreateFromFiles("assets/shaders/vert.glsl", "assets/shaders/frag.glsl");
 	topBarQuad.Init(&basicShader);
-	topBarQuad.CreateQuad({ 0.0, 0.0 }, { windowSize[0], BAR_HEIGHT }, { 0.3, 0.3, 0.3, 1.0 });
+	topBarQuad.CreateQuad({ 0.0, 0.0 }, { windowSize[0], BAR_HEIGHT }, MAIN_COLOR);
 
 	listViewLayer.Init(windowSize);
 
@@ -194,27 +197,27 @@ int main()
 
 		// floating buttons
 		float menuButtonSize = BAR_HEIGHT - 8.0;
-		if (floatingButtons.Evaluate({ 8.0f, 4.0 }, menuButtonSize, 1))
+		if (floatingButtons.Evaluate({ 8.0f, 4.0 }, menuButtonSize, 1, MAIN_COLOR))
 		{
 			std::cout << "file button clicked\n";
 			if (fileSelectionBoxID == -1)
 				fileSelectionBoxID = selectionBoxes.Create(
-					&fileSelectionBoxOptions, { 8.0f + menuButtonSize / 2.0, 4.0 + menuButtonSize / 2.0 }, appFont);
+					&fileSelectionBoxOptions, { 8.0f + menuButtonSize / 2.0, 4.0 + menuButtonSize / 2.0 }, appFont, Glim::Corner::TopLeft, SECOND_COLOR);
 		}
-		if (floatingButtons.Evaluate({ windowSize[0] - 18.0f - 58.0f, windowSize[1] - 18.0f - 58.0f }, 58.0f, 0))
+		if (floatingButtons.Evaluate({ windowSize[0] - 18.0f - 58.0f, windowSize[1] - 18.0f - 58.0f }, 58.0f, 0, MAIN_COLOR))
 		{
 			std::cout << "hierarchy button clicked\n";
 			if (testSelectionBoxID == -1)
 				testSelectionBoxID = selectionBoxes.Create(
-					&addOptions, { windowSize[0] - 18.0f - 58.0f / 2.0f, windowSize[1] - 18.0f - 58.0f / 2.0f }, appFont, Glim::Corner::BottomRight);
+					&addOptions, { windowSize[0] - 18.0f - 58.0f / 2.0f, windowSize[1] - 18.0f - 58.0f / 2.0f }, appFont, Glim::Corner::BottomRight, SECOND_COLOR);
 		}
 
-		sliders.Evaluate({ 20.0f - sliders.GetWidth() / 2.0, windowSize[1] / 2.0f - 150.0f }, 300.0f, &sliderValue, Glim::Orientation::Vertical);
+		sliders.Evaluate({ 20.0f - sliders.GetWidth() / 2.0, windowSize[1] / 2.0f - 150.0f }, 300.0f, &sliderValue, Glim::Orientation::Vertical, MAIN_COLOR);
 
 		textFieldLayer.Evaluate({ windowSize[0] / 2.0f, BAR_HEIGHT / 2.0 },
-			textFieldBuffer, TEXT_FIELD_BUFFER_SIZE, appFont, 14.0f, Glim::HAlignment::Center, Glim::VAlignment::Center);
+			textFieldBuffer, TEXT_FIELD_BUFFER_SIZE, appFont, 14.0f, Glim::HAlignment::Center, Glim::VAlignment::Center, SECOND_COLOR);
 
-		int asdf = listViewLayer.Evaluate({ 0.0, BAR_HEIGHT }, { windowSize[0], windowSize[1] - BAR_HEIGHT }, &listViewItems, appFont);
+		int asdf = listViewLayer.Evaluate({ 0.0, BAR_HEIGHT }, { windowSize[0], windowSize[1] - BAR_HEIGHT }, &listViewItems, appFont, {1.0f, 1.0f, 1.0f, 1.0f}, 0x999999ff);
 		if (asdf != -1)std::cout << asdf << std::endl;
 
 		// glim code end ----------------

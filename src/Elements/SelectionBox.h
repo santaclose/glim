@@ -20,6 +20,7 @@ namespace Glim {
 			uint32_t geometryIndex;
 			Corner cornerAtPos;
 			unsigned int fontID;
+			unsigned int textColor;
 		};
 
 		int m_currentOnScreenBoxCount = 0;
@@ -40,7 +41,12 @@ namespace Glim {
 		void Init(const uint32_t* windowSize);
 		void OnResize();
 
-		int Create(const std::vector<std::string>* options, const glm::vec2& position, unsigned int fontID, Corner cornerAtPos = Corner::TopLeft);
+		int Create(
+			const std::vector<std::string>* options,
+			const glm::vec2& position, unsigned int fontID,
+			Corner cornerAtPos = Corner::TopLeft,
+			const glm::vec4& color = { 0.35f, 0.35f, 0.35f, 0.9f },
+			unsigned int textColor = 0xffffffff);
 		int Evaluate(int selectionBoxID);
 
 		float GetWidth();

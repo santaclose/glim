@@ -2,8 +2,6 @@
 #include "Input.h"
 #include <iostream>
 
-#define TEXT_COLOR 0xffffffff
-#define BOX_COLOR { 0.5f, 0.5f, 0.5f, 0.9f }
 #define H_MARGIN 48.0f
 #define V_MARGIN 24.0f
 #define BAR_HEIGHT 28
@@ -48,7 +46,13 @@ void Glim::ListViewLayer::Init(const uint32_t* windowSize)
 	m_quads.Init(&m_shader);
 }
 
-int Glim::ListViewLayer::Evaluate(const glm::vec2& position, const glm::vec2& size, const std::vector<std::string>* options, unsigned int fontID)
+int Glim::ListViewLayer::Evaluate(
+	const glm::vec2& position,
+	const glm::vec2& size,
+	const std::vector<std::string>* options,
+	unsigned int fontID,
+	const glm::vec4& color,
+	unsigned int textColor)
 {
 	int returnValue = -1;
 
@@ -116,7 +120,7 @@ int Glim::ListViewLayer::Evaluate(const glm::vec2& position, const glm::vec2& si
 	glm::vec2 currentPos = position + glm::vec2(H_MARGIN, V_MARGIN + m_listViews[m_currentID].scrollOffset);
 	for (const std::string& option : *options)
 	{
-		m_textLayer.Element(option.c_str(), currentPos + glm::vec2(TEXT_OFFSET_X, TEXT_OFFSET_Y), TEXT_SIZE, fontID, TEXT_COLOR);
+		m_textLayer.Element(option.c_str(), currentPos + glm::vec2(TEXT_OFFSET_X, TEXT_OFFSET_Y), TEXT_SIZE, fontID, textColor);
 		currentPos.y += BAR_HEIGHT;
 	}
 	if (itemIndex > -2)
@@ -139,7 +143,7 @@ int Glim::ListViewLayer::Evaluate(const glm::vec2& position, const glm::vec2& si
 	}
 
 	m_quads.UpdateQuadVertexCoords(m_listViews[m_currentID].geometryIndex, position, size);
-	m_quads.UpdateQuadColor(m_listViews[m_currentID].geometryIndex, BOX_COLOR);
+	m_quads.UpdateQuadColor(m_listViews[m_currentID].geometryIndex, color);
 
 	m_currentID++;
 	return returnValue;

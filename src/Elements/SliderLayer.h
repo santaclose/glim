@@ -33,7 +33,7 @@ namespace Glim {
 	public:
 		void Init(const uint32_t* windowSize);
 
-		void Evaluate(const glm::vec2& position, float sizeInPixels, float* value, Orientation orientation = Orientation::Horizontal);
+		void Evaluate(const glm::vec2& position, float sizeInPixels, float* value, Orientation orientation = Orientation::Horizontal, const glm::vec4& color = { 0.35f, 0.35f, 0.35f, 0.9f });
 
 		float GetWidth();
 

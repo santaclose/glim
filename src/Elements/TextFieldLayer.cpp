@@ -2,8 +2,6 @@
 #include "../Input.h"
 #include <iostream>
 
-#define TEXT_COLOR 0xffffffff
-#define BOX_COLOR { 0.35f, 0.35f, 0.35f, 0.9f }
 #define BOX_CORNER_RADIUS 5.0f
 #define CURSOR_THICKNESS 2.0f
 #define MARGIN 8.0f
@@ -42,7 +40,16 @@ void Glim::TextFieldLayer::Init(const uint32_t* windowSize)
 	m_quads.Init(&m_shader);
 }
 
-void Glim::TextFieldLayer::Evaluate(const glm::vec2& pos, char* buffer, unsigned int bufferSize, unsigned int fontID, float fontSize, HAlignment hAlignment, VAlignment vAlignment)
+void Glim::TextFieldLayer::Evaluate(
+	const glm::vec2& pos,
+	char* buffer,
+	unsigned int bufferSize,
+	unsigned int fontID,
+	float fontSize,
+	HAlignment hAlignment,
+	VAlignment vAlignment,
+	const glm::vec4& color,
+	unsigned int textColor)
 {
 	// update data
 	if (m_currentID == m_textFields.size())
@@ -168,12 +175,12 @@ void Glim::TextFieldLayer::Evaluate(const glm::vec2& pos, char* buffer, unsigned
 	// update data
 	if (needToHighlight)
 	{
-		glm::vec4 highlightedButtonColor = BOX_COLOR;
+		glm::vec4 highlightedButtonColor = color;
 		highlightedButtonColor += glm::vec4(0.1f, 0.1f, 0.1f, 0.0f);
 		m_quads.UpdateQuadColor(m_textFields[m_currentID].geometryIndex, highlightedButtonColor);
 	}
 	else
-		m_quads.UpdateQuadColor(m_textFields[m_currentID].geometryIndex, BOX_COLOR);
+		m_quads.UpdateQuadColor(m_textFields[m_currentID].geometryIndex, color);
 
 	bool interacting = m_currentlyInteracting == m_currentID;
 	float xSize = m_textLayer->Measure(buffer, fontSize, m_textFields[m_currentID].fontID) + 2 * MARGIN;
@@ -197,7 +204,7 @@ void Glim::TextFieldLayer::Evaluate(const glm::vec2& pos, char* buffer, unsigned
 		{ spawnPosX, spawnPosY,
 		  spawnPosX + xSize, spawnPosY + ySize },
 		{ interacting ? 1.0f : 0.0f, xCursorPos, 0.0f, 0.0f });
-	m_textLayer->Element(buffer, glm::vec2(spawnPosX, spawnPosY) + glm::vec2(MARGIN, MARGIN - fontSize * 0.15), fontSize, m_textFields[m_currentID].fontID, TEXT_COLOR);
+	m_textLayer->Element(buffer, glm::vec2(spawnPosX, spawnPosY) + glm::vec2(MARGIN, MARGIN - fontSize * 0.15), fontSize, m_textFields[m_currentID].fontID, textColor);
 
 	m_currentID++;
 }

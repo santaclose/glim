@@ -4,8 +4,6 @@
 #include <vector>
 
 #define BUTTON_QUAD_MARGIN 3.0f
-#define COLOR { 0.35f, 0.35f, 0.35f, 0.9f }
-#define ICON_COLOR { 1.0f, 1.0f, 1.0f, 1.0f }
 
 bool Glim::ButtonLayer::CollisionTest(int buttonIndex)
 {
@@ -29,7 +27,7 @@ void Glim::ButtonLayer::Init(const uint32_t* windowSize, IconSource iconSource, 
 	m_quads.Init(&m_shader);
 }
 
-bool Glim::ButtonLayer::Evaluate(const glm::vec2& position, float size, int iconID)
+bool Glim::ButtonLayer::Evaluate(const glm::vec2& position, float size, int iconID, const glm::vec4& color, const glm::vec4& iconColor)
 {
 	bool returnValue = false;
 
@@ -39,7 +37,7 @@ bool Glim::ButtonLayer::Evaluate(const glm::vec2& position, float size, int icon
 		m_buttons.emplace_back();
 		m_buttons.back().geometryIndex = m_quads.CreateQuad();
 		if (m_iconSource == IconSource::CircleFont)
-			m_buttons.back().iconIndex = m_circleFont.Add(0, position, size, ICON_COLOR);
+			m_buttons.back().iconIndex = m_circleFont.Add(0, position, size, iconColor);
 	}
 
 	// update data
@@ -50,7 +48,7 @@ bool Glim::ButtonLayer::Evaluate(const glm::vec2& position, float size, int icon
 		m_circleFont.ChangeGlyph(m_buttons[m_currentID].iconIndex, iconID);
 		m_circleFont.UpdatePosition(m_buttons[m_currentID].iconIndex, position);
 		m_circleFont.UpdateSize(m_buttons[m_currentID].iconIndex, size);
-		m_circleFont.SetGlyphColor(m_buttons[m_currentID].iconIndex, ICON_COLOR);
+		m_circleFont.SetGlyphColor(m_buttons[m_currentID].iconIndex, iconColor);
 	}
 
 	m_quads.UpdateQuadVertexCoords(m_buttons[m_currentID].geometryIndex, m_buttons[m_currentID].pos, { size, size });
@@ -93,13 +91,13 @@ bool Glim::ButtonLayer::Evaluate(const glm::vec2& position, float size, int icon
 	// update data
 	if (needToHighlight)
 	{
-		glm::vec4 highlightedButtonColor = COLOR;
+		glm::vec4 highlightedButtonColor = color;
 		highlightedButtonColor += glm::vec4(0.1f, 0.1f, 0.1f, 0.0f);
 		m_quads.UpdateQuadColor(m_buttons[m_currentID].geometryIndex, highlightedButtonColor);
 	}
 	else
 	{
-		m_quads.UpdateQuadColor(m_buttons[m_currentID].geometryIndex, COLOR);
+		m_quads.UpdateQuadColor(m_buttons[m_currentID].geometryIndex, color);
 	}
 
 	m_currentID++;

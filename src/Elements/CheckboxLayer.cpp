@@ -2,7 +2,6 @@
 #include "../Input.h"
 
 #define CORNER_RADIUS 3.0f
-#define COLOR { 0.35f, 0.35f, 0.35f, 0.9f }
 #define QUAD_SIZE 18.0f
 
 bool Glim::CheckboxLayer::CollisionTest(int checkboxID)
@@ -26,7 +25,7 @@ void Glim::CheckboxLayer::Init(const uint32_t* windowSize)
 	m_quads.Init(&m_shader);
 }
 
-void Glim::CheckboxLayer::Evaluate(const glm::vec2& position, bool* value)
+void Glim::CheckboxLayer::Evaluate(const glm::vec2& position, bool* value, const glm::vec4& color)
 {
 	// add a new one if necessary
 	if (m_currentID == m_checkboxes.size())
@@ -77,12 +76,12 @@ void Glim::CheckboxLayer::Evaluate(const glm::vec2& position, bool* value)
 	// update data
 	if (needToHighlight)
 	{
-		glm::vec4 highlightedButtonColor = COLOR;
+		glm::vec4 highlightedButtonColor = color;
 		highlightedButtonColor += glm::vec4(0.1f, 0.1f, 0.1f, 0.0f);
 		m_quads.UpdateQuadColor(m_checkboxes[m_currentID].geometryIndex, highlightedButtonColor);
 	}
 	else
-		m_quads.UpdateQuadColor(m_checkboxes[m_currentID].geometryIndex, COLOR);
+		m_quads.UpdateQuadColor(m_checkboxes[m_currentID].geometryIndex, color);
 	m_quads.UpdateQuadData(m_checkboxes[m_currentID].geometryIndex,
 		{ m_checkboxes[m_currentID].pos.x, m_checkboxes[m_currentID].pos.y,
 		  m_checkboxes[m_currentID].pos.x + QUAD_SIZE, m_checkboxes[m_currentID].pos.y + QUAD_SIZE },

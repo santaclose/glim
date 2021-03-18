@@ -36,7 +36,7 @@ namespace Glim {
 
 	public:
 		void Init(const uint32_t* windowSize, IconSource iconSource = IconSource::None, const std::string& iconsPath = "");
-		bool Evaluate(const glm::vec2& position, float size, int iconID = -1);
+		bool Evaluate(const glm::vec2& position, float size, int iconID = -1, const glm::vec4& color = { 0.35f, 0.35f, 0.35f, 0.9f }, const glm::vec4& iconColor = { 1.0f, 1.0f, 1.0f, 1.0f });
 
 		void FrameBegin();
 		void BeforeDraw();

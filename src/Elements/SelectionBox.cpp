@@ -8,7 +8,6 @@
 #define BOX_WIDTH 130.0f
 #define TEXT_SIZE 12
 #define TEXT_Y_OFFSET 9.0f
-#define COLOR { 0.3f, 0.3f, 0.3f, 0.8f }
 
 int Glim::SelectionBox::CollisionTest(int selectionBoxID)
 {
@@ -64,7 +63,7 @@ void Glim::SelectionBox::OnResize()
 	}
 }
 
-int Glim::SelectionBox::Create(const std::vector<std::string>* options, const glm::vec2& position, unsigned int fontID, Corner cornerAtPos)
+int Glim::SelectionBox::Create(const std::vector<std::string>* options, const glm::vec2& position, unsigned int fontID, Corner cornerAtPos, const glm::vec4& color, unsigned int textColor)
 {
 	glm::vec2 pos = position;
 	glm::vec2 boxSize = { BOX_WIDTH, OPTION_HEIGHT * options->size() + CORNER_RADIUS * 2.0f };
@@ -77,17 +76,17 @@ int Glim::SelectionBox::Create(const std::vector<std::string>* options, const gl
 
 	if (m_currentOnScreenBoxCount == m_selectionBoxes.size()) // need to create a quad
 	{
-		unsigned int quadID = m_quads.CreateQuad(pos, boxSize, COLOR,
-		{
-			pos.x, pos.y,
-			pos.x + boxSize.x, pos.y + boxSize.y
-		});
-		m_selectionBoxes.push_back({ position, options, quadID, cornerAtPos });
+		unsigned int quadID = m_quads.CreateQuad(pos, boxSize, color,
+			{
+				pos.x, pos.y,
+				pos.x + boxSize.x, pos.y + boxSize.y
+			});
+		m_selectionBoxes.push_back({ position, options, quadID, cornerAtPos, fontID, textColor });
 	}
 	else
 	{
 		m_quads.UpdateQuadVertexCoords(m_selectionBoxes[m_currentOnScreenBoxCount].geometryIndex, pos, boxSize);
-		m_quads.UpdateQuadColor(m_selectionBoxes[m_currentOnScreenBoxCount].geometryIndex, COLOR);
+		m_quads.UpdateQuadColor(m_selectionBoxes[m_currentOnScreenBoxCount].geometryIndex, color);
 		m_quads.UpdateQuadData(m_selectionBoxes[m_currentOnScreenBoxCount].geometryIndex,
 			{
 				pos.x, pos.y,
@@ -97,6 +96,7 @@ int Glim::SelectionBox::Create(const std::vector<std::string>* options, const gl
 		m_selectionBoxes[m_currentOnScreenBoxCount].pos = position;
 		m_selectionBoxes[m_currentOnScreenBoxCount].cornerAtPos = cornerAtPos;
 		m_selectionBoxes[m_currentOnScreenBoxCount].fontID = fontID;
+		m_selectionBoxes[m_currentOnScreenBoxCount].textColor = textColor;
 	}
 
 	m_currentOnScreenBoxCount++;
@@ -122,7 +122,7 @@ int Glim::SelectionBox::Evaluate(int selectionBoxID)
 		m_textLayer.Element(
 			(*(m_selectionBoxes[selectionBoxID].options))[i].c_str(),
 			{ pos.x + BOX_WIDTH / 2.0f, pos.y + CORNER_RADIUS + OPTION_HEIGHT * i + TEXT_Y_OFFSET },
-			TEXT_SIZE, m_selectionBoxes[selectionBoxID].fontID, 0xffffffff, Glim::HAlignment::Center);
+			TEXT_SIZE, m_selectionBoxes[selectionBoxID].fontID, m_selectionBoxes[selectionBoxID].textColor, Glim::HAlignment::Center);
 	}
 
 	// handle interaction

@@ -46,7 +46,9 @@ namespace Glim {
 			unsigned int fontID,
 			float fontSize = 11.0f,
 			HAlignment hAlignment = HAlignment::Left,
-			VAlignment vAlignment = VAlignment::Top);
+			VAlignment vAlignment = VAlignment::Top,
+			const glm::vec4& color = { 0.35f, 0.35f, 0.35f, 0.9f },
+			unsigned int textColor = 0xffffffff);
 
 		void FrameEnd();
 		void Destroy();
