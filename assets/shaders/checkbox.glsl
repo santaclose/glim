@@ -30,11 +30,26 @@ float positiveRoundedRectangle(vec2 topLeftCorner, vec2 bottomRightCorner)
     vec2 p = fixedPos - rectCenter;
     return 1.0 - clamp(udRoundBox(p, rectSize / 2.0, u_CornerRadius), 0.0, 1.0);
 }
+
+float negativeCircle(vec2 center, float radius)
+{
+    float size = b_Data.b - b_Data.r;
+	vec2 tCenter = vec2(center.x * size + b_Data.r, center.y * size + b_Data.g);
+	float tRadius = radius * size;
+
+	float dist = distance(b_Pos, tCenter);
+	float delta = fwidth(dist);
+	return smoothstep(tRadius - delta / 2.0, tRadius + delta / 2.0, dist);
+}
 float positiveCircle(vec2 center, float radius)
 {
-    float dist = distance(b_Pos, center);
-    float delta = fwidth(dist);
-    return 1.0 - smoothstep(radius - delta / 2.0, radius + delta / 2.0, dist);
+    float size = b_Data.b - b_Data.r;
+	vec2 tCenter = vec2(center.x * size + b_Data.r, center.y * size + b_Data.g);
+	float tRadius = radius * size;
+
+	float dist = distance(b_Pos, tCenter);
+	float delta = fwidth(dist);
+	return 1.0 - smoothstep(tRadius - delta / 2.0, tRadius + delta / 2.0, dist);
 }
 
 void main()
@@ -48,10 +63,15 @@ void main()
 
     o_Color.a *= roundedBoxMultiplier;
 
+    float checkmark = positiveCircle(vec2(-3.2979,-4.5699), 6.488) * positiveCircle(vec2(3.2392,-2.3052), 4.1808);
+    float temp = positiveCircle(vec2(-3.3864,-4.6536), 6.5205) * positiveCircle(vec2(3.337,-2.3256), 4.1808);
+    checkmark *= 1.0 - temp;
+    checkmark *= negativeCircle(vec2(3.8863,-2.5716), 4.1808);
+    checkmark *= negativeCircle(vec2(-2.3005,-2.8116),4.1808);
+    //float checkmark = positiveCircle(vec2(0.5,0.5), 0.2);
+
     // add checkmark if value is true
-    roundedBoxMultiplier =
-        b_MoreData.x *
-        positiveCircle((topLeftCorner + bottomRightCorner) / 2.0, (-topLeftCorner.x + bottomRightCorner.x) / 2.0 - 3.0);
+    roundedBoxMultiplier = b_MoreData.x * checkmark;
 
     o_Color.a *= 1.0 - roundedBoxMultiplier;
 }
