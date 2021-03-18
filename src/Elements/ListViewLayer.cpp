@@ -56,13 +56,13 @@ int Glim::ListViewLayer::Evaluate(
 {
 	int returnValue = -1;
 
-	// update data
 	if (m_currentID == m_listViews.size())
 	{
 		m_listViews.emplace_back();
 		m_listViews.back().geometryIndex = m_quads.CreateQuad();
 	}
 
+	// update data
 	m_listViews[m_currentID].pos = position;
 	m_listViews[m_currentID].size = size;
 	m_listViews[m_currentID].options = options;
@@ -70,6 +70,7 @@ int Glim::ListViewLayer::Evaluate(
 
 	// handle interaction
 	bool cursorOver = false;
+	bool needToHighlight = false;
 	int itemIndex = -2;
 	if (!Input::cursorCollisionDetected)
 	{
@@ -108,6 +109,10 @@ int Glim::ListViewLayer::Evaluate(
 			itemIndex = CollisionTest(m_currentID);
 		}
 	}
+	needToHighlight = 
+		cursorOver && Input::currentlyHandling == nullptr ||
+		Input::currentlyHandling == this && m_currentlyInteracting == m_currentID;
+
 	if (Input::MouseButtonUp(0) && Input::currentlyHandling == this && m_currentlyInteracting == m_currentID)
 	{
 		Input::currentlyHandling = nullptr;
@@ -138,8 +143,16 @@ int Glim::ListViewLayer::Evaluate(
 			m_shaderUniformData.w = position.y + V_MARGIN + m_listViews[m_currentID].scrollOffset + BAR_HEIGHT * (itemIndex + 1);
 		}
 		m_shader.Bind();
-		m_shader.SetUniform2fv("u_SelectionTopLeft", &m_shaderUniformData.x);
-		m_shader.SetUniform2fv("u_SelectionBottomRight", &m_shaderUniformData.z);
+		if (needToHighlight)
+		{
+			m_shader.SetUniform2fv("u_SelectionTopLeft", &m_shaderUniformData.x);
+			m_shader.SetUniform2fv("u_SelectionBottomRight", &m_shaderUniformData.z);
+		}
+		else
+		{
+			m_shader.SetUniform2fv("u_SelectionTopLeft", &m_shaderUniformData.x);
+			m_shader.SetUniform2fv("u_SelectionBottomRight", &m_shaderUniformData.x);
+		}
 	}
 
 	m_quads.UpdateQuadVertexCoords(m_listViews[m_currentID].geometryIndex, position, size);

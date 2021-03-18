@@ -63,7 +63,6 @@ bool Glim::ButtonLayer::Evaluate(const glm::vec2& position, float size, int icon
 		cursorOver = CollisionTest(m_currentID);
 		if (cursorOver)
 		{
-			needToHighlight = true;
 			if (Input::currentlyHandling == nullptr)
 			{
 				Input::cursorCollisionDetected = true;
