@@ -60,10 +60,14 @@ void main()
     if (u_SelectionData.r < 0.0)
         return;
 
-    o_Color.rgb += vec3(0.1 * float(
+    float highlightedRectangle = float(
         b_Pos.y > u_SelectionData.b + u_Radius + u_OptionHeight * (u_SelectionData.r) &&
         b_Pos.y < u_SelectionData.b + u_Radius + u_OptionHeight * (u_SelectionData.r + 1.0f) &&
         b_Pos.x > u_SelectionData.g &&
-        b_Pos.x < u_SelectionData.a)
-    );
+        b_Pos.x < u_SelectionData.a);
+    // brighter if highlighted
+    o_Color.rgb += vec3(0.1 * highlightedRectangle);
+    // darker if can't be brighter
+    o_Color.rgb -= vec3(highlightedRectangle * float(o_Color.r > 1.0 || o_Color.g  > 1.0 || o_Color.b > 1.0) * 0.2);
+
 }

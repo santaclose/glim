@@ -212,12 +212,12 @@ int main()
 					&addOptions, { windowSize[0] - 18.0f - 58.0f / 2.0f, windowSize[1] - 18.0f - 58.0f / 2.0f }, appFont, Glim::Corner::BottomRight, SECOND_COLOR);
 		}
 
-		sliders.Evaluate({ 20.0f - sliders.GetWidth() / 2.0, windowSize[1] / 2.0f - 150.0f }, 300.0f, &sliderValue, Glim::Orientation::Vertical, MAIN_COLOR);
+		sliders.Evaluate({ 20.0f - sliders.GetWidth() / 2.0, windowSize[1] / 2.0f - 150.0f }, 300.0f, &sliderValue, Glim::Orientation::Vertical, {0.95f, 0.95f, 0.95f, 1.0f});
 
 		textFieldLayer.Evaluate({ windowSize[0] / 2.0f, BAR_HEIGHT / 2.0 },
 			textFieldBuffer, TEXT_FIELD_BUFFER_SIZE, appFont, 14.0f, Glim::HAlignment::Center, Glim::VAlignment::Center, SECOND_COLOR);
 
-		int asdf = listViewLayer.Evaluate({ 0.0, BAR_HEIGHT }, { windowSize[0], windowSize[1] - BAR_HEIGHT }, &listViewItems, appFont, {1.0f, 1.0f, 1.0f, 1.0f}, 0x999999ff);
+		int asdf = listViewLayer.Evaluate({ 0.0, BAR_HEIGHT }, { windowSize[0], windowSize[1] - BAR_HEIGHT }, &listViewItems, appFont, {1.0f, 1.0f, 1.0f, 1.0f}, 0x333333ff);
 		if (asdf != -1)std::cout << asdf << std::endl;
 
 		// glim code end ----------------

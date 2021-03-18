@@ -76,9 +76,11 @@ void Glim::CheckboxLayer::Evaluate(const glm::vec2& position, bool* value, const
 	// update data
 	if (needToHighlight)
 	{
-		glm::vec4 highlightedButtonColor = color;
-		highlightedButtonColor += glm::vec4(0.1f, 0.1f, 0.1f, 0.0f);
-		m_quads.UpdateQuadColor(m_checkboxes[m_currentID].geometryIndex, highlightedButtonColor);
+		glm::vec4 highlightedColor = color;
+		highlightedColor += glm::vec4(0.1f, 0.1f, 0.1f, 0.0f);
+		if (highlightedColor.r > 1.0f || highlightedColor.g > 1.0f || highlightedColor.b > 1.0f)
+			highlightedColor -= glm::vec4(0.2f, 0.2f, 0.2f, 0.0f);
+		m_quads.UpdateQuadColor(m_checkboxes[m_currentID].geometryIndex, highlightedColor);
 	}
 	else
 		m_quads.UpdateQuadColor(m_checkboxes[m_currentID].geometryIndex, color);

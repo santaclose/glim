@@ -37,5 +37,8 @@ void main()
 {
 	o_Color = b_Color;
     float roundedRect = positiveRoundedRectangle(u_SelectionTopLeft, u_SelectionBottomRight);
-	o_Color.rgb += roundedRect * 0.1;
+    // brighter if highlighted
+	o_Color.rgb += vec3(roundedRect * 0.1);
+    // darker if can't be brighter
+    o_Color.rgb -= vec3(roundedRect * float(o_Color.r > 1.0 || o_Color.g  > 1.0 || o_Color.b > 1.0) * 0.2);
 }

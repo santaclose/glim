@@ -59,5 +59,10 @@ void main()
 
     vec2 cursorTopLeft = vec2(topLeftCorner.x + u_Margin + b_MoreData.y, topLeftCorner.y + 3.0);
     vec2 cursorBottomRight = vec2(topLeftCorner.x + u_Margin + b_MoreData.y + u_CursorThickness, bottomRightCorner.y - 3.0);
-    o_Color.rgb += vec3(positiveRectangle(cursorTopLeft, cursorBottomRight));
+
+    float cursorRectangle = positiveRectangle(cursorTopLeft, cursorBottomRight);
+    // brighter if highlighted
+	o_Color.rgb += vec3(cursorRectangle * 0.2);
+    // darker if can't be brighter
+    o_Color.rgb -= vec3(cursorRectangle * float(o_Color.r > 1.0 || o_Color.g  > 1.0 || o_Color.b > 1.0) * 0.4);
 }
