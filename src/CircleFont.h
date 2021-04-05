@@ -20,10 +20,6 @@ namespace Glim {
 	public:
 		void CreateFromFile(const std::string& filePath);
 
-		void SetGlyphDataRandomly(unsigned int glyphID);
-		void RandomGlyphChange(unsigned int glyphID);
-		void DiscardLastChange();
-
 		unsigned int Add(unsigned int glyphID, const glm::vec2& position, float size, const glm::vec4& color);
 		void UpdatePosition(unsigned int glyphInstanceID, const glm::vec2& position);
 		void UpdateSize(unsigned int glyphInstanceID, float newSize);
