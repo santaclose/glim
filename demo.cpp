@@ -30,9 +30,6 @@ bool checkboxValue = false;
 Glim::CheckboxLayer checkboxes;
 Glim::TextLayer sampleText;
 
-std::vector<std::string> listViewItems = { "asdf", "fdsa", "zxcv", "fdsa", "zxcv", "fdsa", "zxcv", "fdsa", "zxcv", "fdsa", "zxcv", "fdsa", "zxcv", "fdsa", "zxcv", "fdsa", "zxcv", "fdsa", "zxcv" };
-Glim::ListViewLayer listViewLayer;
-
 #define TEXT_FIELD_BUFFER_SIZE 128
 char textFieldBuffer[TEXT_FIELD_BUFFER_SIZE];
 char textField2Buffer[TEXT_FIELD_BUFFER_SIZE];
@@ -42,11 +39,6 @@ Glim::TextFieldLayer sampleTextField;
 uint32_t windowSize[2] = { APPLICATION_WIDTH, APPLICATION_HEIGHT };
 
 const std::vector<std::string> categoryOptions = { "0", "1", "2", "3" };
-const std::vector<std::vector<std::string>> itemOptions = {
-	{ "0a", "0b", "0c", "0d" },
-	{ "1a", "1b", "1c", "1d" },
-	{ "2a", "2b", "2c", "2d" },
-	{ "3a", "3b", "3c", "3d" } };
 const std::vector<std::string> fileSelectionBoxOptions =
 { "Open", "Save", "Import", "Export", "Exit", "Preferences" };
 
@@ -145,7 +137,6 @@ int main()
 	checkboxes.Init(windowSize);
 	sampleText.Init(windowSize);
 	sampleTextField.Init(windowSize);
-	listViewLayer.Init(windowSize);
 
 	memset(textFieldBuffer, 0, TEXT_FIELD_BUFFER_SIZE);
 	memset(textField2Buffer, 0, TEXT_FIELD_BUFFER_SIZE);
@@ -215,14 +206,21 @@ int main()
 		}
 		if (floatingButtons.Evaluate({ windowSize[0] - 18.0f - 65.0f, windowSize[1] - 18.0f - 65.0f }, 65.0f, 0))
 		{
-			std::cout << "hierarchy button clicked\n";
+			std::cout << "category button clicked\n";
 			if (testSelectionBoxID == -1)
 				testSelectionBoxID = selectionBoxes.Create(
 					&categoryOptions, { windowSize[0] - 18.0f - 65.0f / 2.0f, windowSize[1] - 18.0f - 65.0f / 2.0f }, appFont, Glim::Corner::BottomRight);
 		}
 
 		sliders.Evaluate({ 50.0f - sliders.GetWidth() / 2.0, windowSize[1] / 2.0f - 150.0f }, 300.0f, &sliderValue, Glim::Orientation::Vertical);
+
+		bool prev = checkboxValue;
 		checkboxes.Evaluate({ 50.0f - checkboxes.GetSize() / 2.0, windowSize[1] / 2.0f + 150.0f }, &checkboxValue);
+		if (prev != checkboxValue)
+		{
+			std::cout << "checkbox value set to: " << checkboxValue << std::endl;
+		}
+
 		//if (Glim::Input::Key(Glim::Input::KeyCode::Space))
 		//	sliderValue = glm::sin(glfwGetTime()) * 0.5 + 0.5;
 
@@ -241,8 +239,6 @@ int main()
 		sampleTextField.Evaluate({ windowSize[0] / 2.0f ,  windowSize[1] / 2.0f },
 			textField2Buffer, TEXT_FIELD_BUFFER_SIZE, appFont, (1.0 - sliderValue) * 300.0f + 11.0f, Glim::HAlignment::Right);
 
-		listViewLayer.Evaluate({ windowSize[0] - 216.0f, windowSize[1] / 2.0f -  200.0f }, { 200.0, 400.0 }, &listViewItems, appFont);
-
 		// glim code end ----------------
 
 		//Glim::Render();
@@ -257,7 +253,6 @@ int main()
 		Glim::Input::FrameEnd();
 		sampleText.FrameEnd();
 		sampleTextField.FrameEnd();
-		listViewLayer.FrameEnd();
 		floatingButtons.FrameEnd();
 		selectionBoxes.FrameEnd();
 		checkboxes.FrameEnd();

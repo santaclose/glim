@@ -25,6 +25,7 @@
 #define SECOND_COLOR { 0.0f, 168.0f/255.0f, 128.0f/255.0f, 0.9 }
 
 unsigned int appFont;
+unsigned int barQuadId;
 
 Glim::SelectionBox selectionBoxes;
 Glim::ButtonLayer floatingButtons;
@@ -53,6 +54,8 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 
 	Glim::Shader::UpdateMatrix(windowSize);
 	Glim::TextLayer::OnResize();
+
+	topBarQuad.UpdateQuadVertexCoords(barQuadId, { 0.0f, 0.0f }, { windowSize[0], BAR_HEIGHT });
 }
 
 void cursor_position_callback(GLFWwindow* window, double xpos, double ypos)
@@ -133,7 +136,7 @@ int main()
 	Glim::Shader basicShader;
 	basicShader.CreateFromFiles("assets/shaders/vert.glsl", "assets/shaders/frag.glsl");
 	topBarQuad.Init(&basicShader);
-	topBarQuad.CreateQuad({ 0.0, 0.0 }, { windowSize[0], BAR_HEIGHT }, MAIN_COLOR);
+	barQuadId = topBarQuad.CreateQuad({ 0.0, 0.0 }, { windowSize[0], BAR_HEIGHT }, MAIN_COLOR);
 
 	listViewLayer.Init(windowSize);
 
