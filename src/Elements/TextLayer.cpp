@@ -10,25 +10,25 @@ namespace Glim {
 	std::vector<TextLayer*> TextLayer::instances;
 }
 
-void Glim::TextLayer::ComputeMatrix()
+void Glim::TextLayer::ComputeMatrix(const uint32_t* windowSize)
 {
-	_msdfgl_ortho(0.0, (float)m_windowSize[0], (float)m_windowSize[1], 0.0, -1.0, 1.0, m_projection);
-}
-
-void Glim::TextLayer::Init(const uint32_t* windowSize)
-{
-	m_windowSize = windowSize;
-
 	_msdfgl_ortho(0.0, (float)windowSize[0], (float)windowSize[1], 0.0, -1.0, 1.0, m_projection);
-
-	LayerRenderer::PushLayer(this);
-	instances.push_back(this);
 }
 
-void Glim::TextLayer::OnResize()
+Glim::TextLayer::TextLayer()
+{
+	instances.push_back(this);
+	LayerRenderer::PushLayer(this);
+}
+
+Glim::TextLayer::~TextLayer()
+{
+}
+
+void Glim::TextLayer::OnResize(const uint32_t* windowSize)
 {
 	for (TextLayer* t : instances)
-		t->ComputeMatrix();
+		t->ComputeMatrix(windowSize);
 }
 
 void Glim::TextLayer::Element(const char* text, const glm::vec2& pos, float size, unsigned int fontID, unsigned int color, HAlignment alignment)

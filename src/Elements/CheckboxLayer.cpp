@@ -1,8 +1,14 @@
 #include "CheckboxLayer.h"
+#include "../GlobalState.h"
 #include "../Input.h"
 
 #define CORNER_RADIUS 3.0f
 #define QUAD_SIZE 18.0f
+
+namespace Glim {
+
+	std::vector<CheckboxLayer*> CheckboxLayer::instances;
+}
 
 bool Glim::CheckboxLayer::CollisionTest(int checkboxID)
 {
@@ -14,15 +20,19 @@ bool Glim::CheckboxLayer::CollisionTest(int checkboxID)
 
 }
 
-void Glim::CheckboxLayer::Init(const uint32_t* windowSize)
+Glim::CheckboxLayer::CheckboxLayer()
 {
-	m_windowSize = windowSize;
+	instances.push_back(this);
 
 	m_shader.CreateFromFiles("assets/shaders/vert.glsl", "assets/shaders/checkbox.glsl");
 	m_shader.Bind();
 	m_shader.SetUniform1f("u_CornerRadius", CORNER_RADIUS);
 
 	m_quads.Init(&m_shader);
+}
+
+Glim::CheckboxLayer::~CheckboxLayer()
+{
 }
 
 void Glim::CheckboxLayer::Evaluate(const glm::vec2& position, bool* value, const glm::vec4& color)
@@ -44,17 +54,17 @@ void Glim::CheckboxLayer::Evaluate(const glm::vec2& position, bool* value, const
 	// handle interaction
 	bool cursorOver = false;
 	bool needToHighlight = false;
-	if (!Input::cursorCollisionDetected)
+	if (!GlobalState::cursorCollisionDetected)
 	{
 		cursorOver = CollisionTest(m_currentID);
 		if (cursorOver)
 		{
-			if (Input::currentlyHandling == nullptr)
+			if (GlobalState::currentlyHandling == nullptr)
 			{
-				Input::cursorCollisionDetected = true;
+				GlobalState::cursorCollisionDetected = true;
 				if (Input::MouseButtonDown(0))
 				{
-					Input::currentlyHandling = this;
+					GlobalState::currentlyHandling = this;
 					m_currentlyInteracting = m_currentID;
 				}
 			}
@@ -62,12 +72,12 @@ void Glim::CheckboxLayer::Evaluate(const glm::vec2& position, bool* value, const
 	}
 
 	needToHighlight =
-		cursorOver && Input::currentlyHandling == nullptr ||
-		Input::currentlyHandling == this && m_currentlyInteracting == m_currentID;
+		cursorOver && GlobalState::currentlyHandling == nullptr ||
+		GlobalState::currentlyHandling == this && m_currentlyInteracting == m_currentID;
 
-	if (Input::MouseButtonUp(0) && Input::currentlyHandling == this && m_currentlyInteracting == m_currentID)
+	if (Input::MouseButtonUp(0) && GlobalState::currentlyHandling == this && m_currentlyInteracting == m_currentID)
 	{
-		Input::currentlyHandling = nullptr;
+		GlobalState::currentlyHandling = nullptr;
 		m_currentlyInteracting = -1;
 		if (cursorOver)
 			*m_checkboxes[m_currentID].value = !*m_checkboxes[m_currentID].value;

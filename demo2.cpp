@@ -3,19 +3,8 @@
 #include <iostream>
 #include <cstdint>
 #include <vector>
-#include "Input.h"
-#include "Shader.h"
-#include "Geometry.h"
-#include "FontManager.h"
-#include "CircleFont.h"
-#include "LayerRenderer.h"
-#include "Elements/TextLayer.h"
-#include "Elements/ButtonLayer.h"
-#include "Elements/SelectionBox.h"
-#include "Elements/SliderLayer.h"
-#include "Elements/CheckboxLayer.h"
-#include "Elements/TextFieldLayer.h"
-#include "Elements/ListViewLayer.h"
+
+#include <Glim.h>
 
 #define APPLICATION_WIDTH 360
 #define APPLICATION_HEIGHT 720
@@ -27,19 +16,19 @@
 unsigned int appFont;
 unsigned int barQuadId;
 
-Glim::SelectionBox selectionBoxes;
-Glim::ButtonLayer floatingButtons;
+Glim::SelectionBox* selectionBoxes;
+Glim::ButtonLayer* floatingButtons;
 float sliderValue = 0.5;
-Glim::SliderLayer sliders;
+Glim::SliderLayer* sliders;
 
 Glim::Geometry topBarQuad;
 
 std::vector<std::string> listViewItems = { "asdf", "fdsa", "zxcv", "5655", "0000" };
-Glim::ListViewLayer listViewLayer;
+Glim::ListViewLayer* listViewLayer;
 
 #define TEXT_FIELD_BUFFER_SIZE 32
 char textFieldBuffer[TEXT_FIELD_BUFFER_SIZE];
-Glim::TextFieldLayer textFieldLayer;
+Glim::TextFieldLayer* textFieldLayer;
 
 uint32_t windowSize[2] = { APPLICATION_WIDTH, APPLICATION_HEIGHT };
 
@@ -52,8 +41,7 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 	windowSize[1] = height;
 	glViewport(0, 0, width, height);
 
-	Glim::Shader::UpdateMatrix(windowSize);
-	Glim::TextLayer::OnResize();
+	Glim::UpdateWindowSize(windowSize);
 
 	topBarQuad.UpdateQuadVertexCoords(barQuadId, { 0.0f, 0.0f }, { windowSize[0], BAR_HEIGHT });
 }
@@ -123,25 +111,22 @@ int main()
 	std::cout << "Renderer: " << glGetString(GL_RENDERER) << std::endl;
 	std::cout << "OpenGL version supported: " << glGetString(GL_VERSION) << std::endl;
 
-	// Glim::Init();
-
-	Glim::FontManager::Init();
+	Glim::Init();
 	appFont = Glim::FontManager::CreateFromFile("assets/fonts/Open_Sans/OpenSans-Regular.ttf");
-
-	selectionBoxes.Init(windowSize);
-	floatingButtons.Init(windowSize, Glim::ButtonLayer::IconSource::CircleFont, "assets/icons.cf");
-	sliders.Init(windowSize);
-	textFieldLayer.Init(windowSize);
+	selectionBoxes = new Glim::SelectionBox();
+	floatingButtons = new Glim::ButtonLayer();
+	sliders = new Glim::SliderLayer();
+	textFieldLayer = new Glim::TextFieldLayer();
+	listViewLayer = new Glim::ListViewLayer();
+	Glim::UpdateWindowSize(windowSize);
 
 	Glim::Shader basicShader;
 	basicShader.CreateFromFiles("assets/shaders/vert.glsl", "assets/shaders/frag.glsl");
 	topBarQuad.Init(&basicShader);
 	barQuadId = topBarQuad.CreateQuad({ 0.0, 0.0 }, { windowSize[0], BAR_HEIGHT }, MAIN_COLOR);
 
-	listViewLayer.Init(windowSize);
-
 	memset(textFieldBuffer, 0, TEXT_FIELD_BUFFER_SIZE);
-
+	
 	int testSelectionBoxID = -1;
 	int fileSelectionBoxID = -1;
 
@@ -149,18 +134,17 @@ int main()
 	while (!glfwWindowShouldClose(window))
 	{
 		glfwPollEvents();
-		floatingButtons.FrameBegin();
 
 		glClearColor(0.9, 0.9, 0.9, 1.0);
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		// glim code ----------------
+		Glim::FrameBegin();
 
 		// selection boxes
 
 		if (testSelectionBoxID > -1)
 		{
-			int selection = selectionBoxes.Evaluate(testSelectionBoxID);
+			int selection = selectionBoxes->Evaluate(testSelectionBoxID);
 			switch (selection)
 			{
 			case Glim::SelectionBox::Selection::None:
@@ -170,7 +154,7 @@ int main()
 				break;
 			default:
 				std::cout << "category selection: " << selection << std::endl;
-				selectionBoxes.Delete(testSelectionBoxID);
+				selectionBoxes->Delete(testSelectionBoxID);
 				testSelectionBoxID = -1;
 				break;
 			}
@@ -179,20 +163,20 @@ int main()
 		// top left menu
 		if (fileSelectionBoxID > -1)
 		{
-			int selection = selectionBoxes.Evaluate(fileSelectionBoxID);
+			int selection = selectionBoxes->Evaluate(fileSelectionBoxID);
 			switch (selection)
 			{
 			case Glim::SelectionBox::Selection::None:
 				break;
 			case Glim::SelectionBox::Selection::Cancel:
-				selectionBoxes.Delete(fileSelectionBoxID);
+				selectionBoxes->Delete(fileSelectionBoxID);
 				fileSelectionBoxID = -1;
 				break;
 			default:
 				std::cout << "file menu selection: " << selection << std::endl;
 				if (selection == 2)
 					glfwSetWindowShouldClose(window, 1);
-				selectionBoxes.Delete(fileSelectionBoxID);
+				selectionBoxes->Delete(fileSelectionBoxID);
 				fileSelectionBoxID = -1;
 				break;
 			}
@@ -200,50 +184,42 @@ int main()
 
 		// floating buttons
 		float menuButtonSize = BAR_HEIGHT - 8.0;
-		if (floatingButtons.Evaluate({ 8.0f, 4.0 }, menuButtonSize, 1, MAIN_COLOR))
+		if (floatingButtons->Evaluate({ 8.0f, 4.0 }, menuButtonSize, 1, MAIN_COLOR))
 		{
 			std::cout << "file button clicked\n";
 			if (fileSelectionBoxID == -1)
-				fileSelectionBoxID = selectionBoxes.Create(
+				fileSelectionBoxID = selectionBoxes->Create(
 					&fileSelectionBoxOptions, { 8.0f + menuButtonSize / 2.0, 4.0 + menuButtonSize / 2.0 }, appFont, Glim::Corner::TopLeft, SECOND_COLOR);
+
 		}
-		if (floatingButtons.Evaluate({ windowSize[0] - 18.0f - 58.0f, windowSize[1] - 18.0f - 58.0f }, 58.0f, 0, MAIN_COLOR))
+		if (floatingButtons->Evaluate({ windowSize[0] - 18.0f - 58.0f, windowSize[1] - 18.0f - 58.0f }, 58.0f, 0, MAIN_COLOR))
 		{
 			std::cout << "hierarchy button clicked\n";
 			if (testSelectionBoxID == -1)
-				testSelectionBoxID = selectionBoxes.Create(
+				testSelectionBoxID = selectionBoxes->Create(
 					&addOptions, { windowSize[0] - 18.0f - 58.0f / 2.0f, windowSize[1] - 18.0f - 58.0f / 2.0f }, appFont, Glim::Corner::BottomRight, SECOND_COLOR);
 		}
 
-		sliders.Evaluate({ 20.0f - sliders.GetWidth() / 2.0, windowSize[1] / 2.0f - 150.0f }, 300.0f, &sliderValue, Glim::Orientation::Vertical, {0.95f, 0.95f, 0.95f, 1.0f});
+		sliders->Evaluate({ 20.0f - sliders->GetWidth() / 2.0, windowSize[1] / 2.0f - 150.0f }, 300.0f, &sliderValue, Glim::Orientation::Vertical, {0.66f, 0.66f, 0.95f, 1.0f});
+		sliders->Evaluate({ windowSize[0] / 2.0 - 50.0f, windowSize[1] / 2.0 - sliders->GetWidth() / 2.0 }, 100.0f, &sliderValue);
 
-		textFieldLayer.Evaluate({ windowSize[0] / 2.0f, BAR_HEIGHT / 2.0 },
+		textFieldLayer->Evaluate({ windowSize[0] / 2.0f, BAR_HEIGHT / 2.0 },
 			textFieldBuffer, TEXT_FIELD_BUFFER_SIZE, appFont, 14.0f, Glim::HAlignment::Center, Glim::VAlignment::Center, SECOND_COLOR);
 
-		int asdf = listViewLayer.Evaluate({ 0.0, BAR_HEIGHT }, { windowSize[0], windowSize[1] - BAR_HEIGHT }, &listViewItems, appFont, {1.0f, 1.0f, 1.0f, 1.0f}, 0x333333ff);
+		int asdf = listViewLayer->Evaluate({ 0.0, BAR_HEIGHT }, { windowSize[0], windowSize[1] - BAR_HEIGHT }, &listViewItems, appFont, {1.0f, 1.0f, 1.0f, 1.0f}, 0x333333ff);
 		if (asdf != -1)std::cout << asdf << std::endl;
 
-		// glim code end ----------------
-
-		//Glim::Render();
-		sliders.BeforeDraw();
-		floatingButtons.BeforeDraw();
-		Glim::LayerRenderer::Render();
+		Glim::Render();
 
 		glfwSwapBuffers(window);
 
-		Glim::Input::FrameEnd();
-		textFieldLayer.FrameEnd();
-		listViewLayer.FrameEnd();
-		floatingButtons.FrameEnd();
-		selectionBoxes.FrameEnd();
-		sliders.FrameEnd();
+		Glim::FrameEnd();
+
 		glfwWaitEvents();
 	}
 
-	//Glim::Terminate();
-	textFieldLayer.Destroy();
-	Glim::FontManager::Destroy();
+	Glim::Terminate();
+
 	glfwTerminate();
 	return 0;
 }

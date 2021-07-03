@@ -7,6 +7,9 @@
 namespace Glim {
 
 	class CheckboxLayer {
+	public:
+		static std::vector<CheckboxLayer*> instances;
+		
 	private:
 		struct CheckboxInfo {
 
@@ -19,7 +22,6 @@ namespace Glim {
 		int m_currentID = 0;
 		std::vector<CheckboxInfo> m_checkboxes;
 
-		const uint32_t* m_windowSize;
 		Shader m_shader;
 		Geometry m_quads;
 
@@ -28,7 +30,9 @@ namespace Glim {
 		bool CollisionTest(int checkboxID);
 
 	public:
-		void Init(const uint32_t* windowSize);
+		CheckboxLayer::CheckboxLayer();
+		CheckboxLayer::~CheckboxLayer();
+
 		void Evaluate(const glm::vec2& position, bool* value, const glm::vec4& color = { 0.35f, 0.35f, 0.35f, 0.9f });
 		float GetSize();
 

@@ -9,6 +9,9 @@
 
 namespace Glim {
 	class ListViewLayer {
+	public:
+		static std::vector<ListViewLayer*> instances;
+
 	private:
 		struct ListViewInfo {
 
@@ -22,10 +25,9 @@ namespace Glim {
 
 		int m_currentID = 0;
 
-		const uint32_t* m_windowSize;
 		Geometry m_quads; // one quad for each selection box displayed at the same time
 		Shader m_shader;
-		TextLayer m_textLayer;
+		TextLayer* m_textLayer;
 
 		int m_currentlyInteracting = -1;
 
@@ -37,7 +39,8 @@ namespace Glim {
 		int CollisionTest(int listViewID);
 
 	public:
-		void Init(const uint32_t* windowSize);
+		ListViewLayer::ListViewLayer();
+		ListViewLayer::~ListViewLayer();
 
 		int Evaluate(
 			const glm::vec2& position,

@@ -1,5 +1,6 @@
 #include "ListViewLayer.h"
 #include "Input.h"
+#include "GlobalState.h"
 #include <iostream>
 
 #define H_MARGIN 48.0f
@@ -10,6 +11,11 @@
 #define TEXT_OFFSET_Y 6.0f
 #define SCROLL_SENSITIVITY 12.0f
 #define CORNER_RADIUS 5.0f
+
+namespace Glim {
+
+	std::vector<ListViewLayer*> ListViewLayer::instances;
+}
 
 bool Glim::ListViewLayer::CursorOver(int listViewID)
 {
@@ -33,10 +39,11 @@ int Glim::ListViewLayer::CollisionTest(int listViewID)
 	return -1;
 }
 
-void Glim::ListViewLayer::Init(const uint32_t* windowSize)
+Glim::ListViewLayer::ListViewLayer()
 {
-	m_windowSize = windowSize;
-	m_textLayer.Init(windowSize);
+	instances.push_back(this);
+
+	m_textLayer = new TextLayer();
 
 	m_shader.CreateFromFiles("assets/shaders/vert.glsl", "assets/shaders/listView.glsl");
 	m_shader.Bind();
@@ -44,6 +51,10 @@ void Glim::ListViewLayer::Init(const uint32_t* windowSize)
 	m_shader.SetUniform2fv("u_SelectionTopLeft", &m_shaderUniformData.x);
 	m_shader.SetUniform2fv("u_SelectionBottomRight", &m_shaderUniformData.z);
 	m_quads.Init(&m_shader);
+}
+
+Glim::ListViewLayer::~ListViewLayer()
+{
 }
 
 int Glim::ListViewLayer::Evaluate(
@@ -72,17 +83,17 @@ int Glim::ListViewLayer::Evaluate(
 	bool cursorOver = false;
 	bool needToHighlight = false;
 	int itemIndex = -2;
-	if (!Input::cursorCollisionDetected)
+	if (!GlobalState::cursorCollisionDetected)
 	{
 		cursorOver = CursorOver(m_currentID);
 		if (cursorOver)
 		{
-			if (Input::currentlyHandling == nullptr)
+			if (GlobalState::currentlyHandling == nullptr)
 			{
-				Input::cursorCollisionDetected = true;
+				GlobalState::cursorCollisionDetected = true;
 				if (Input::MouseButtonDown(0))
 				{
-					Input::currentlyHandling = this;
+					GlobalState::currentlyHandling = this;
 					m_currentlyInteracting = m_currentID;
 				}
 			}
@@ -109,13 +120,13 @@ int Glim::ListViewLayer::Evaluate(
 			itemIndex = CollisionTest(m_currentID);
 		}
 	}
-	needToHighlight = 
-		cursorOver && Input::currentlyHandling == nullptr ||
-		Input::currentlyHandling == this && m_currentlyInteracting == m_currentID;
+	needToHighlight =
+		cursorOver && GlobalState::currentlyHandling == nullptr ||
+		GlobalState::currentlyHandling == this && m_currentlyInteracting == m_currentID;
 
-	if (Input::MouseButtonUp(0) && Input::currentlyHandling == this && m_currentlyInteracting == m_currentID)
+	if (Input::MouseButtonUp(0) && GlobalState::currentlyHandling == this && m_currentlyInteracting == m_currentID)
 	{
-		Input::currentlyHandling = nullptr;
+		GlobalState::currentlyHandling = nullptr;
 		m_currentlyInteracting = -1;
 		if (cursorOver)
 			returnValue = itemIndex;
@@ -125,7 +136,7 @@ int Glim::ListViewLayer::Evaluate(
 	glm::vec2 currentPos = position + glm::vec2(H_MARGIN, V_MARGIN + m_listViews[m_currentID].scrollOffset);
 	for (const std::string& option : *options)
 	{
-		m_textLayer.Element(option.c_str(), currentPos + glm::vec2(TEXT_OFFSET_X, TEXT_OFFSET_Y), TEXT_SIZE, fontID, textColor);
+		m_textLayer->Element(option.c_str(), currentPos + glm::vec2(TEXT_OFFSET_X, TEXT_OFFSET_Y), TEXT_SIZE, fontID, textColor);
 		currentPos.y += BAR_HEIGHT;
 	}
 	if (itemIndex > -2)
@@ -173,5 +184,4 @@ void Glim::ListViewLayer::BeforeDraw()
 void Glim::ListViewLayer::FrameEnd()
 {
 	m_currentID = 0;
-	m_textLayer.FrameEnd();
 }

@@ -10,6 +10,7 @@
 namespace Glim {
 	class SelectionBox {
 	public:
+		static std::vector<SelectionBox*> instances;
 		enum Selection { None = -2, Cancel = -1 };
 
 	private:
@@ -26,10 +27,9 @@ namespace Glim {
 		int m_currentOnScreenBoxCount = 0;
 		glm::vec2 m_lastSelectionPos = { -1, -1 };
 
-		const uint32_t* m_windowSize;
 		Geometry m_quads; // one quad for each selection box displayed at the same time
 		Shader m_shader;
-		TextLayer m_textLayer;
+		TextLayer* m_textLayer;
 
 		glm::vec4 m_shaderUniformData = { -1.0f, 0.0f, 0.0f, 0.0f };
 
@@ -38,7 +38,9 @@ namespace Glim {
 		int CollisionTest(int selectionBoxID);
 
 	public:
-		void Init(const uint32_t* windowSize);
+		SelectionBox::SelectionBox();
+		SelectionBox::~SelectionBox();
+
 		void OnResize();
 
 		int Create(
@@ -52,7 +54,5 @@ namespace Glim {
 		float GetWidth();
 		const glm::vec2& GetLastSelectionPosition(Corner corner = Corner::TopLeft);
 		void Delete(int selectionBoxID);
-
-		void FrameEnd();
 	};
 }

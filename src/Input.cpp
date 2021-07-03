@@ -23,9 +23,6 @@ namespace Glim::Input {
 
 	bool charInput = false;
 	unsigned int character;
-
-	bool cursorCollisionDetected = false;
-	void* currentlyHandling = nullptr;
 }
 
 void Glim::Input::UpdateMouseButtons(int button, int action)
@@ -57,8 +54,6 @@ void Glim::Input::FrameEnd()
 	}
 
 	charInput = false;
-
-	cursorCollisionDetected = false;
 }
 
 void Glim::Input::UpdateKeyboard(int key, int action)

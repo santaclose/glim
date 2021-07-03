@@ -1,11 +1,17 @@
 #include "SliderLayer.h"
 #include "../Input.h"
+#include "../GlobalState.h"
 #include <iostream>
 
 #define SIDE_MARGIN 1.0f
 #define RAIL_THICKNESS 3.0f
 #define HANDLE_RADIUS 8.0f
 #define QUAD_WIDTH 25.0f
+
+namespace Glim {
+
+	std::vector<SliderLayer*> SliderLayer::instances;
+}
 
 bool Glim::SliderLayer::CollisionTest(int sliderID)
 {
@@ -32,9 +38,9 @@ bool Glim::SliderLayer::CollisionTest(int sliderID)
 	}
 }
 
-void Glim::SliderLayer::Init(const uint32_t* windowSize)
+Glim::SliderLayer::SliderLayer()
 {
-	m_windowSize = windowSize;
+	instances.push_back(this);
 
 	m_shader.CreateFromFiles("assets/shaders/vert.glsl", "assets/shaders/slider.glsl");
 	m_shader.Bind();
@@ -43,6 +49,10 @@ void Glim::SliderLayer::Init(const uint32_t* windowSize)
 	m_shader.SetUniform1f("u_SideMargin", SIDE_MARGIN);
 
 	m_quads.Init(&m_shader);
+}
+
+Glim::SliderLayer::~SliderLayer()
+{
 }
 
 void Glim::SliderLayer::Evaluate(const glm::vec2& position, float size, float* value, Orientation orientation, const glm::vec4& color)
@@ -81,17 +91,17 @@ void Glim::SliderLayer::Evaluate(const glm::vec2& position, float size, float* v
 	bool needToHighlight = false;
 	bool needToUpdateDraggingOffset = false;
 	bool cursorOver = false;
-	if (!Input::cursorCollisionDetected)
+	if (!GlobalState::cursorCollisionDetected)
 	{
 		cursorOver = CollisionTest(m_currentID);
 		if (cursorOver)
 		{
-			if (Input::currentlyHandling == nullptr)
+			if (GlobalState::currentlyHandling == nullptr)
 			{
-				Input::cursorCollisionDetected = true;
+				GlobalState::cursorCollisionDetected = true;
 				if (Input::MouseButtonDown(0))
 				{
-					Input::currentlyHandling = this;
+					GlobalState::currentlyHandling = this;
 					m_currentlyDraggingSlider = m_currentID;
 					needToUpdateDraggingOffset = true;
 				}
@@ -99,11 +109,11 @@ void Glim::SliderLayer::Evaluate(const glm::vec2& position, float size, float* v
 		}
 	}
 	needToHighlight =
-		cursorOver && Input::currentlyHandling == nullptr ||
-		Input::currentlyHandling == this && m_currentlyDraggingSlider == m_currentID;
-	if (Input::MouseButtonUp(0) && Input::currentlyHandling == this && m_currentlyDraggingSlider == m_currentID)
+		cursorOver && GlobalState::currentlyHandling == nullptr ||
+		GlobalState::currentlyHandling == this && m_currentlyDraggingSlider == m_currentID;
+	if (Input::MouseButtonUp(0) && GlobalState::currentlyHandling == this && m_currentlyDraggingSlider == m_currentID)
 	{
-		Input::currentlyHandling = nullptr;
+		GlobalState::currentlyHandling = nullptr;
 		m_currentlyDraggingSlider = -1;
 	}
 

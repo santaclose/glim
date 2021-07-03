@@ -6,10 +6,10 @@
 namespace Glim {
 
 	class TextFieldLayer {
-
-	private:
+	public:
 		static std::vector<TextFieldLayer*> instances;
 
+	private:
 		struct TextFieldInfo {
 
 			uint32_t geometryIndex;
@@ -24,8 +24,6 @@ namespace Glim {
 		int m_currentID = 0;
 		std::vector<TextFieldInfo> m_textFields;
 
-		const uint32_t* m_windowSize;
-
 		Shader m_shader;
 		Geometry m_quads;
 		TextLayer* m_textLayer;
@@ -37,7 +35,8 @@ namespace Glim {
 		bool CollisionTest(int textFieldID);
 
 	public:
-		void Init(const uint32_t* windowSize);
+		TextFieldLayer::TextFieldLayer();
+		TextFieldLayer::~TextFieldLayer();
 
 		void Evaluate(
 			const glm::vec2& pos,
@@ -51,6 +50,5 @@ namespace Glim {
 			unsigned int textColor = 0xffffffff);
 
 		void FrameEnd();
-		void Destroy();
 	};
 }

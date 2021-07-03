@@ -8,6 +8,9 @@
 namespace Glim {
 	
 	class SliderLayer {
+	public:
+		static std::vector<SliderLayer*> instances;
+
 	private:
 		struct SliderInfo {
 
@@ -31,7 +34,8 @@ namespace Glim {
 		bool CollisionTest(int sliderID);
 
 	public:
-		void Init(const uint32_t* windowSize);
+		SliderLayer::SliderLayer();
+		SliderLayer::~SliderLayer();
 
 		void Evaluate(const glm::vec2& position, float sizeInPixels, float* value, Orientation orientation = Orientation::Horizontal, const glm::vec4& color = { 0.35f, 0.35f, 0.35f, 0.9f });
 

@@ -1,6 +1,6 @@
 #include "SelectionBox.h"
 #include "../Input.h"
-
+#include "../GlobalState.h"
 #include <iostream>
 
 #define CORNER_RADIUS 5.0f
@@ -8,6 +8,11 @@
 #define BOX_WIDTH 130.0f
 #define TEXT_SIZE 12
 #define TEXT_Y_OFFSET 9.0f
+
+namespace Glim {
+
+	std::vector<SelectionBox*> SelectionBox::instances;
+}
 
 int Glim::SelectionBox::CollisionTest(int selectionBoxID)
 {
@@ -28,11 +33,11 @@ int Glim::SelectionBox::CollisionTest(int selectionBoxID)
 	return optionCount - 1;
 }
 
-void Glim::SelectionBox::Init(const uint32_t* windowSize)
+Glim::SelectionBox::SelectionBox()
 {
-	m_windowSize = windowSize;
+	instances.push_back(this);
 
-	m_textLayer.Init(windowSize);
+	m_textLayer = new TextLayer();
 
 	m_shader.CreateFromFiles("assets/shaders/vert.glsl", "assets/shaders/selectionBox.glsl");
 	m_shader.Bind();
@@ -40,6 +45,10 @@ void Glim::SelectionBox::Init(const uint32_t* windowSize)
 	m_shader.SetUniform1f("u_OptionHeight", OPTION_HEIGHT);
 	m_shader.SetUniform4fv("u_SelectionData", &m_shaderUniformData.x);
 	m_quads.Init(&m_shader);
+}
+
+Glim::SelectionBox::~SelectionBox()
+{
 }
 
 void Glim::SelectionBox::OnResize()
@@ -119,7 +128,7 @@ int Glim::SelectionBox::Evaluate(int selectionBoxID)
 
 	for (int i = 0; i < m_selectionBoxes[selectionBoxID].options->size(); i++)
 	{
-		m_textLayer.Element(
+		m_textLayer->Element(
 			(*(m_selectionBoxes[selectionBoxID].options))[i].c_str(),
 			{ pos.x + BOX_WIDTH / 2.0f, pos.y + CORNER_RADIUS + OPTION_HEIGHT * i + TEXT_Y_OFFSET },
 			TEXT_SIZE, m_selectionBoxes[selectionBoxID].fontID, m_selectionBoxes[selectionBoxID].textColor, Glim::HAlignment::Center);
@@ -127,16 +136,16 @@ int Glim::SelectionBox::Evaluate(int selectionBoxID)
 
 	// handle interaction
 	int collisionResult;
-	if (!Input::cursorCollisionDetected)
+	if (!GlobalState::cursorCollisionDetected)
 	{
 		collisionResult = CollisionTest(selectionBoxID);
-		Input::cursorCollisionDetected = true;
-		if (Input::MouseButtonDown(0) && Input::currentlyHandling == nullptr)
-			Input::currentlyHandling = this;
-		if (Input::MouseButtonUp(0) && Input::currentlyHandling == this)
+		GlobalState::cursorCollisionDetected = true;
+		if (Input::MouseButtonDown(0) && GlobalState::currentlyHandling == nullptr)
+			GlobalState::currentlyHandling = this;
+		if (Input::MouseButtonUp(0) && GlobalState::currentlyHandling == this)
 		{
 			returnValue = collisionResult;
-			Input::currentlyHandling = nullptr;
+			GlobalState::currentlyHandling = nullptr;
 		}
 	}
 
@@ -158,7 +167,7 @@ int Glim::SelectionBox::Evaluate(int selectionBoxID)
 	return returnValue;
 }
 
-float GetWidth()
+float Glim::SelectionBox::GetWidth()
 {
 	return BOX_WIDTH;
 }
@@ -177,9 +186,4 @@ void Glim::SelectionBox::Delete(int selectionBoxID)
 	// hide box and decrement counter
 	m_quads.UpdateQuadColor(m_selectionBoxes[selectionBoxID].geometryIndex, { 0.0f, 0.0f, 0.0f, 0.0f });
 	m_currentOnScreenBoxCount--;
-}
-
-void Glim::SelectionBox::FrameEnd()
-{
-	m_textLayer.FrameEnd();
 }

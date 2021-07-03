@@ -1,9 +1,15 @@
-#include "../Input.h"
 #include "ButtonLayer.h"
+#include "../Input.h"
+#include "../GlobalState.h"
 #include <iostream>
 #include <vector>
 
 #define BUTTON_QUAD_MARGIN 3.0f
+
+namespace Glim {
+
+	std::vector<ButtonLayer*> ButtonLayer::instances;
+}
 
 bool Glim::ButtonLayer::CollisionTest(int buttonIndex)
 {
@@ -13,18 +19,23 @@ bool Glim::ButtonLayer::CollisionTest(int buttonIndex)
 		< m_buttons[buttonIndex].size / 2.0f - BUTTON_QUAD_MARGIN / 2.0f;
 }
 
-void Glim::ButtonLayer::Init(const uint32_t* windowSize, IconSource iconSource, const std::string& iconsPath)
+Glim::ButtonLayer::ButtonLayer(IconSource iconSource, const std::string& iconsPath)
 {
+	instances.push_back(this);
+
 	if (iconSource == IconSource::CircleFont)
 		m_circleFont.CreateFromFile(iconsPath);
 
 	m_iconSource = iconSource;
-	m_windowSize = windowSize;
 
 	m_shader.CreateFromFiles("assets/shaders/vert.glsl", "assets/shaders/floatingButton.glsl");
 	m_shader.Bind();
 	m_shader.SetUniform1f("u_Margin", BUTTON_QUAD_MARGIN);
 	m_quads.Init(&m_shader);
+}
+
+Glim::ButtonLayer::~ButtonLayer()
+{
 }
 
 bool Glim::ButtonLayer::Evaluate(const glm::vec2& position, float size, int iconID, const glm::vec4& color, const glm::vec4& iconColor)
@@ -58,17 +69,17 @@ bool Glim::ButtonLayer::Evaluate(const glm::vec2& position, float size, int icon
 	// handle interaction
 	bool cursorOver = false;
 	bool needToHighlight = false;
-	if (!Input::cursorCollisionDetected)
+	if (!GlobalState::cursorCollisionDetected)
 	{
 		cursorOver = CollisionTest(m_currentID);
 		if (cursorOver)
 		{
-			if (Input::currentlyHandling == nullptr)
+			if (GlobalState::currentlyHandling == nullptr)
 			{
-				Input::cursorCollisionDetected = true;
+				GlobalState::cursorCollisionDetected = true;
 				if (Input::MouseButtonDown(0))
 				{
-					Input::currentlyHandling = this;
+					GlobalState::currentlyHandling = this;
 					m_currentlyInteracting = m_currentID;
 				}
 			}
@@ -76,12 +87,12 @@ bool Glim::ButtonLayer::Evaluate(const glm::vec2& position, float size, int icon
 	}
 
 	needToHighlight =
-		cursorOver && Input::currentlyHandling == nullptr ||
-		Input::currentlyHandling == this && m_currentlyInteracting == m_currentID;
+		cursorOver && GlobalState::currentlyHandling == nullptr ||
+		GlobalState::currentlyHandling == this && m_currentlyInteracting == m_currentID;
 
-	if (Input::MouseButtonUp(0) && Input::currentlyHandling == this && m_currentlyInteracting == m_currentID)
+	if (Input::MouseButtonUp(0) && GlobalState::currentlyHandling == this && m_currentlyInteracting == m_currentID)
 	{
-		Input::currentlyHandling = nullptr;
+		GlobalState::currentlyHandling = nullptr;
 		m_currentlyInteracting = -1;
 		if (cursorOver)
 			returnValue = true;

@@ -1,10 +1,16 @@
 #include "TextFieldLayer.h"
 #include "../Input.h"
+#include "../GlobalState.h"
 #include <iostream>
 
 #define BOX_CORNER_RADIUS 5.0f
 #define CURSOR_THICKNESS 2.0f
 #define MARGIN 8.0f
+
+namespace Glim {
+
+	std::vector<TextFieldLayer*> TextFieldLayer::instances;
+}
 
 bool Glim::TextFieldLayer::CollisionTest(int textFieldID)
 {
@@ -26,11 +32,11 @@ bool Glim::TextFieldLayer::CollisionTest(int textFieldID)
 		Input::mousePos[1] > spawnPosY && Input::mousePos[1] < spawnPosY + ySize;
 }
 
-void Glim::TextFieldLayer::Init(const uint32_t* windowSize)
+Glim::TextFieldLayer::TextFieldLayer()
 {
-	m_windowSize = windowSize;
+	instances.push_back(this);
+
 	m_textLayer = new TextLayer();
-	m_textLayer->Init(windowSize);
 
 	m_shader.CreateFromFiles("assets/shaders/vert.glsl", "assets/shaders/textField.glsl");
 	m_shader.Bind();
@@ -38,6 +44,10 @@ void Glim::TextFieldLayer::Init(const uint32_t* windowSize)
 	m_shader.SetUniform1f("u_CornerRadius", BOX_CORNER_RADIUS);
 	m_shader.SetUniform1f("u_CursorThickness", CURSOR_THICKNESS);
 	m_quads.Init(&m_shader);
+}
+
+Glim::TextFieldLayer::~TextFieldLayer()
+{
 }
 
 void Glim::TextFieldLayer::Evaluate(
@@ -68,34 +78,34 @@ void Glim::TextFieldLayer::Evaluate(
 	// handle interaction
 	bool cursorOver = false;
 	bool needToHighlight = false;
-	if (!Input::cursorCollisionDetected)
+	if (!GlobalState::cursorCollisionDetected)
 	{
 		cursorOver = CollisionTest(m_currentID);
 		if (cursorOver)
 		{
-			if (Input::currentlyHandling == nullptr)
+			if (GlobalState::currentlyHandling == nullptr)
 			{
-				Input::cursorCollisionDetected = true;
+				GlobalState::cursorCollisionDetected = true;
 				if (Input::MouseButtonDown(0))
 				{
-					Input::currentlyHandling = this;
+					GlobalState::currentlyHandling = this;
 					m_clickPending = m_currentID;
 				}
 			}
 		}
-		else if (Input::MouseButtonDown(0) && Input::currentlyHandling == this)
+		else if (Input::MouseButtonDown(0) && GlobalState::currentlyHandling == this)
 		{
-			Input::currentlyHandling = nullptr;
+			GlobalState::currentlyHandling = nullptr;
 			m_currentlyInteracting = -1;
 			m_clickPending = -1;
 		}
 	}
 
 	needToHighlight =
-		cursorOver && Input::currentlyHandling == nullptr ||
-		Input::currentlyHandling == this && m_clickPending == m_currentID;
+		cursorOver && GlobalState::currentlyHandling == nullptr ||
+		GlobalState::currentlyHandling == this && m_clickPending == m_currentID;
 
-	if (Input::MouseButtonUp(0) && Input::currentlyHandling == this && m_clickPending == m_currentID)
+	if (Input::MouseButtonUp(0) && GlobalState::currentlyHandling == this && m_clickPending == m_currentID)
 	{
 		m_clickPending = -1;
 		if (cursorOver)
@@ -104,7 +114,7 @@ void Glim::TextFieldLayer::Evaluate(
 			for (m_cursorIndex = 0; m_cursorIndex < bufferSize - 1 && buffer[m_cursorIndex] != '\0'; m_cursorIndex++);
 		}
 		else
-			Input::currentlyHandling = nullptr;
+			GlobalState::currentlyHandling = nullptr;
 	}
 
 	if (m_currentlyInteracting == m_currentID)
@@ -167,7 +177,7 @@ void Glim::TextFieldLayer::Evaluate(
 		}
 		else if (Input::KeyDown(Input::KeyCode::Escape) || Input::KeyDown(Input::KeyCode::Enter) || Input::KeyDown(Input::KeyCode::KPEnter))
 		{
-			Input::currentlyHandling = nullptr;
+			GlobalState::currentlyHandling = nullptr;
 			m_currentlyInteracting = -1;
 		}
 	}
@@ -213,12 +223,4 @@ void Glim::TextFieldLayer::Evaluate(
 void Glim::TextFieldLayer::FrameEnd()
 {
 	m_currentID = 0;
-	m_textLayer->FrameEnd();
 }
-
-void Glim::TextFieldLayer::Destroy()
-{
-	delete m_textLayer;
-}
-
-

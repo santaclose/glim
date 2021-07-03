@@ -9,9 +9,10 @@
 namespace Glim {
 
 	class TextLayer : public Drawable {
+	public:
+		static std::vector<TextLayer*> instances;
 
 	private:
-		static std::vector<TextLayer*> instances;
 
 		struct TextElement {
 
@@ -27,14 +28,14 @@ namespace Glim {
 		int m_currentID = 0;
 
 		float m_projection[4][4];
-		const uint32_t* m_windowSize;
 
 		std::vector<TextElement> m_textElements;
 
-		void ComputeMatrix();
+		void ComputeMatrix(const uint32_t* windowSize);
 
 	public:
-		void Init(const uint32_t* windowSize);
+		TextLayer::TextLayer();
+		TextLayer::~TextLayer();
 
 		void Element(
 			const char* text,
@@ -54,6 +55,6 @@ namespace Glim {
 		void Draw();
 		void FrameEnd();
 
-		static void OnResize();
+		static void OnResize(const uint32_t* windowSize);
 	};
 }
