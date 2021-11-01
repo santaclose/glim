@@ -52,7 +52,7 @@ project "glim"
 		"vendor/GLFW/include",
 		"vendor/Glad/include",
 		"vendor/stb_truetype/",
-		"vendor/freetype2/include",
+		"vendor/freetype/include",
 		"vendor/glm",
 		"vendor/msdfgl/include"
 	}
@@ -62,7 +62,7 @@ project "glim"
 		"GLFW",
 		"Glad",
 		"opengl32.lib",
-		"vendor/freetype2/objs/x64/Release/freetype.lib"
+		"vendor/freetype/win64/freetype.lib"
 	}
 
 	filter "system:windows"
