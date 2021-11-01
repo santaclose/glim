@@ -7,6 +7,3 @@
 [submodule "vendor/msdfgl"]
 	path = vendor/msdfgl
 	url = https://github.com/santaclose/msdfgl
-[submodule "vendor/freetype2"]
-	path = vendor/freetype2
-	url = https://github.com/freetype/freetype2.git
